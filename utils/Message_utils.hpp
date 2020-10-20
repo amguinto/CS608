@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "Math_utils.hpp"
+
 namespace message
 {
 static const std::map<char, std::size_t> numeric_plaintext_map = {
@@ -16,7 +18,7 @@ static const std::map<char, std::size_t> numeric_plaintext_map = {
     { 'm', 12 }, { 'n', 13 }, { 'o', 14 }, { 'p', 15 }, 
     { 'q', 16 }, { 'r', 17 }, { 's', 18 }, { 't', 19 }, 
     { 'u', 20 }, { 'v', 21 }, { 'w', 22 }, { 'x', 23 },
-    { 'y', 24 }, { 'z', 25 }
+    { 'y', 24 }, { 'z', 25 }, { ' ', 26}
 };
 
 // static const std::map<char, std::string> numeric_plaintext_map = {
@@ -29,9 +31,7 @@ static const std::map<char, std::size_t> numeric_plaintext_map = {
 //     { 'y', "24" }, { 'z', "25" }
 // };
 
-// Helper function to map Numerical_plaintext.
-// std::string parse_numeric_plaintext(const char& charac)
-std::size_t char_to_numeric(const char& charac)
+static inline std::size_t char_to_numeric(const char& charac)
 {
     std::size_t numeric = std::numeric_limits<std::size_t>::max();
 
@@ -42,67 +42,61 @@ std::size_t char_to_numeric(const char& charac)
     }
     else
     {
-        std::cout << "Didn't find " << charac << std::endl;
+        std::cout << "Ignoring character: " << charac << std::endl;
     }
     
     return numeric;
 }
 
-// Helper function to map Numerical_plaintext.
-char numeric_to_char(const std::size_t num)
+// TODO: Add block sizes here.
+template<typename T>
+static inline char numeric_to_char(const T num)
 {
-    std::size_t numeric = std::numeric_limits<std::size_t>::max();
-    char c = '0';
+    char c{};
     for (const auto& e : numeric_plaintext_map)
     {
         if (e.second == num)
         {
-            std::cout << "Character for " << num << ", is " << e.first << std::endl;
+            // std::cout << "Character for " << num << ", is " << e.first << std::endl;
             c = e.first;
             break;
         }
     }
 
     return c;
-
-    
-    return numeric;
 }
 
-// Plaintext Presentation in Numerical Forms
-std::vector<std::size_t> naive_plaintext_numeric(const std::string& str)
+static inline std::vector<std::size_t> naive_plaintext_numeric(const std::string& str)
 {
     std::vector<std::size_t> numeric_form;
-    // numeric_form.reserve(str.size() * 2);
+    numeric_form.reserve(str.size() * 2);
 
     for (const auto& c : str)
     {
-        numeric_form.emplace_back(char_to_numeric(c));
+        auto val = char_to_numeric(c);
+        numeric_form.emplace_back(val);            
     }
 
     return numeric_form;
 }
 
-// Compressed representation
-std::int64_t encode_naive_representation(const std::vector<std::size_t>& numeric_form)
+static inline mpz_class encode_naive_representation(const std::vector<std::size_t>& numeric_form)
 {
-    std::cout << "size = " << numeric_form.size() << std::endl;
-    auto compressed_num = 0;
+    mpz_class compressed_num{};
     for (std::size_t i = 0, r = numeric_form.size() - 1;
          i <= numeric_form.size() - 1; 
          ++i, --r)
     {
-        compressed_num += numeric_form[i] * std::pow(numeric_plaintext_map.size(), r);
+        mpz_class result = numeric_form[i] * math::IPow(numeric_plaintext_map.size(), r);
+        compressed_num += result;
     }
 
     return compressed_num;
 }
 
-std::string decode_naive_representation(std::int64_t compressed_num)
+static inline std::string decode_naive_representation(mpz_class compressed_num)
 {
-    // While N < L
     std::string text = "";
-    // while (compressed_num > numeric_plaintext_map.size())
     for (;;)
     {
         if (compressed_num < numeric_plaintext_map.size())
@@ -112,7 +106,6 @@ std::string decode_naive_representation(std::int64_t compressed_num)
             break;
         }
         auto num = compressed_num % numeric_plaintext_map.size();
-        std::cout << "num = " << num << std::endl;
         text.insert(0, 1, numeric_to_char(num));
         compressed_num = (compressed_num - num) / numeric_plaintext_map.size();
     }

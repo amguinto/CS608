@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-#include "Math_utils.hpp"
-#include "Message_utils.hpp"
+// #include "utils/Math_utils.hpp"
+#include "utils/Message_utils.hpp"
 
 int main()
 {
@@ -18,22 +18,6 @@ int main()
     std::string example = "njit";
     std::cout << "GCD = " << math::gcd(a, b) << std::endl;
 
-    auto naive = message::naive_plaintext_numeric(example);
-
-    std::cout << "Numerical Representation = ";
-    for (const auto& e : naive)
-    {
-        std::cout << e << "\t";
-    }
-    std::cout << std::endl;
-
-    auto compressed = message::encode_naive_representation(naive);
-    std::cout << "Encoded compressed Representation = " << compressed << std::endl;
-
-    std::string decoded = message::decode_naive_representation(compressed);
-    std::cout << decoded << std::endl;
-    std::cout << std::endl;
-
     size_t n = 307;
     auto prime_factors = math::get_prime_factors_unq(n - 1);
 
@@ -42,5 +26,5 @@ int main()
         std::cout << e << std::endl;
     }
 
-    std::cout << "generator = " << math::find_generator(n) << std::endl;
+    std::cout << "generator = " << math::find_smallest_generator(n) << std::endl;
 }
