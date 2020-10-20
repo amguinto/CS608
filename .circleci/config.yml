@@ -3,14 +3,14 @@ version: 2.1
 # Define the jobs we want to run for this project
 jobs:
   build:
-    machine:
-      image: ubuntu-1604-cuda-10.1:201909-23
+    docker:
+      - image: aguinto/cs608:latest
     steps:
       - checkout
       - run: mkdir build && cd build && cmake .. && make -j4
   test:
-    machine:
-      image: ubuntu-1604-cuda-10.1:201909-23
+    docker:
+      - image: aguinto/cs608:latest
     steps:
       - checkout
       - run: ./build/test/run_tests
