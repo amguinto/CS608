@@ -1,3 +1,6 @@
+#ifndef MATH_UTILS_HPP
+#define MATH_UTILS_HPP
+
 #include <algorithm>
 #include <limits>
 #include <math.h>
@@ -154,3 +157,4 @@ static inline bool is_generator(const size_t num, const size_t g)
 }
 
 } // namespace math
+#endif // MATH_UTILS_HPP

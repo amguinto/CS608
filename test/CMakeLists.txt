@@ -10,7 +10,8 @@ find_package(GTest REQUIRED)
 find_package(GMP REQUIRED)
 
 
-add_executable(run_tests 
+add_executable(run_tests
+    test_Algorithms.cpp
     test_Message_utils.cpp
     test_Math_utils.cpp
 )
@@ -20,5 +21,5 @@ target_link_libraries(run_tests
     gmpxx 
     gtest 
     gtest_main 
-    pthread)
-
+    pthread
+)

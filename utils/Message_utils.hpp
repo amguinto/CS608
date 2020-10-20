@@ -1,3 +1,6 @@
+#ifndef MESSAGE_UTILS_HPP
+#define MESSAGE_UTILS_HPP
+
 #include <algorithm>
 #include <iostream>
 #include <limits>
@@ -112,4 +115,6 @@ static inline std::string decode_naive_representation(mpz_class compressed_num)
 
     return text;
 }
+
 } // namespace message
+#endif // MESSAGE_UTILS_HPP

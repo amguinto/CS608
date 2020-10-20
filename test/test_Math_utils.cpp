@@ -7,6 +7,8 @@
 TEST(test_Message_utils, find_smallest_generator)
 {
     EXPECT_EQ(math::find_smallest_generator(307), 5);
+    EXPECT_EQ(math::find_smallest_generator(747073), 5);
+
 }
 
 TEST(test_Message_utils, is_generator)
@@ -15,4 +17,6 @@ TEST(test_Message_utils, is_generator)
     EXPECT_FALSE(math::is_generator(307, 3));
     EXPECT_FALSE(math::is_generator(307, 4));
     EXPECT_TRUE(math::is_generator(307, 5));
+    EXPECT_FALSE(math::is_generator(747073, 2));
+    EXPECT_TRUE(math::is_generator(747073, 5));
 }
