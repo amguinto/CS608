@@ -7,24 +7,28 @@
 #include <string>
 #include <vector>
 
-// #include "utils/Math_utils.hpp"
+#include "utils/Math_utils.hpp"
 #include "utils/Message_utils.hpp"
 
 int main()
 {
-    auto a = 200;
-    auto b = 100;
+    std::cout << "Diffie Hellman Key Exchange:" << std::endl;
+    auto generator = math::find_smallest_generator(747073);
+    std::cout << generator << std::endl;
 
-    std::string example = "njit";
-    std::cout << "GCD = " << math::gcd(a, b) << std::endl;
+    // auto a = 200;
+    // auto b = 100;
 
-    size_t n = 307;
-    auto prime_factors = math::get_prime_factors_unq(n - 1);
+    // std::string example = "njit";
+    // std::cout << "GCD = " << math::gcd(a, b) << std::endl;
 
-    for (const auto& e : prime_factors)
-    {
-        std::cout << e << std::endl;
-    }
+    // size_t n = 307;
+    // auto prime_factors = math::get_prime_factors_unq(n - 1);
 
-    std::cout << "generator = " << math::find_smallest_generator(n) << std::endl;
+    // for (const auto& e : prime_factors)
+    // {
+    //     std::cout << e << std::endl;
+    // }
+
+    // std::cout << "generator = " << math::find_smallest_generator(n) << std::endl;
 }

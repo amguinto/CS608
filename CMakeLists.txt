@@ -12,6 +12,8 @@ find_package(GMP REQUIRED)
 # Required to create a test directory with executable.
 add_subdirectory(test)
 
+include(CTest)
+
 add_executable(CS608 
     main.cpp
     utils/Math_utils.hpp
@@ -19,7 +21,3 @@ add_executable(CS608
 )
 
 target_link_libraries(CS608 gmp gmpxx gtest)
-
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)

@@ -74,7 +74,7 @@ static inline mpz_class IPow(const T base, const T power)
     return rop;
 }
 
-static inline std::size_t find_smallest_generator(const size_t num)
+static inline std::size_t find_smallest_generator(const size_t num, const size_t exception = 0)
 {
     // Get factors of p - 1
     auto factors = get_prime_factors_unq(num - 1);
@@ -88,6 +88,13 @@ static inline std::size_t find_smallest_generator(const size_t num)
     // try a g, such that 1 < g < p - 1
     for (std::size_t i = 2; i < num - 1; ++i)
     {
+        // Have an option to exclude a generator. Incase the output of a function isn't good.
+        // i.e. (ElGamal's Mask = 1 mod p)
+        if (i == exception)
+        {
+            continue;
+        }
+
         if (found)
         {
             break;
@@ -128,7 +135,7 @@ static inline std::size_t find_smallest_generator(const size_t num)
 //          g = generator to try
 static inline bool is_generator(const size_t num, const size_t g)
 {
-     // Get factors of p - 1
+    // Get factors of p - 1
     auto factors = get_prime_factors_unq(num - 1);
     bool gtor = true;
 
