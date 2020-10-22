@@ -3,6 +3,7 @@
 
 // Standard C/C++
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <memory>
 
@@ -82,25 +83,10 @@ static inline std::uint64_t Diffie_Hellman_Key_Exchange(const std::uint64_t a,
                 modulo.get_mpz_t());
 
     // Make sure the shared key matches.
-    if (SK_A == SK_B)
-    {
-        shared_key = mpz_get_ui(SK_A.get_mpz_t());
-    }
-    else
-    {
-        // Just for logging purposes without using a logging module.
-        std::cout << "The shared keys were not computed correctly." << std::endl;
-        std::cout << "Shared key of A = ";
-        mpz_out_str(NULL, 10, SK_A.get_mpz_t());
-        std::cout << std::endl;
-        std::cout << "Shared key of B = ";
-        mpz_out_str(NULL, 10, SK_B.get_mpz_t());
-        std::cout << std::endl;
-    }
+    assert(SK_A == SK_B);
 
-    return shared_key;
+    return mpz_get_ui(SK_A.get_mpz_t());
 }
-
 
 //! @description: ElGamal Encryption to compute the ciphertext.
 //! @params: a, b are the randomly chosen secret keys within the range of 0 < a,b < p -1
@@ -188,11 +174,19 @@ ElGamal_Encryption(const std::uint64_t a,
     // Calculate Mask.
     // A uses B's public key to encrypt. Therefore it is used in the mask calculation.
     // A also uses its secret key (exponent) in the mask calculation
-    mpz_class mask{};
+    mpz_class mask(1); // Initialize to 1 so we can find a better mask.
     mpz_powm_ui(mask.get_mpz_t(),    // Result buffer
-                PK_B->get_mpz_t(),    // Base
+                PK_B->get_mpz_t(),   // Base
                 key,                 // Exponent
                 modulo.get_mpz_t()); // Modulo
+
+    // We need to make sure the mask is NEVER 1.
+    // The inverse would be too trivial to calculate.
+    if (mask == 1)
+    {
+        return std::make_pair(std::make_pair(mpz_class{}, mpz_class{}),
+                              std::make_pair(p, std::move(Generator->get_ui())));
+    }
 
     // Calculate Ciphertext.
     // A uses B's public key to encrypt. Therefore it is used in the mask calculation.
@@ -222,6 +216,14 @@ static inline mpz_class ElGamal_Decryption(const std::uint64_t a,
                                                     std::pair<mpz_class,     mpz_class>,
                                                     std::pair<std::uint64_t, std::uint64_t>>& params)
 {
+    // Make sure we actually have the ciphertext and hint.
+    // Otherwise, we can't decrypt.
+    if (params.first.first.get_ui()  == 0 &&
+        params.first.second.get_ui() == 0)
+    {
+        return mpz_class{};
+    }
+
     // Use the same Modulo and Generator that was used for encryption.
     // Initialize GMP datatypes.
     mpz_class modulo(params.second.first);

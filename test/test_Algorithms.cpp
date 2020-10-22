@@ -34,7 +34,7 @@ TEST(test_Algorithms, ElGamal_Cryptosystem)
                                                       57,  // A's secret key
                                                       72); // message
 
-    EXPECT_EQ(encryption.first.first,  56);  // Ciphertext
+    EXPECT_EQ(encryption.first.first,  56); // Ciphertext
     EXPECT_EQ(encryption.first.second, 23); // Hint
     EXPECT_EQ(encryption.second.first, 89); // Modulo
     EXPECT_EQ(encryption.second.second, 3); // Generator
@@ -52,18 +52,21 @@ TEST(test_Algorithms, ElGamal_Cryptosystem)
  **********************************************************
 */ 
     // Edge case when we have a bad Mask.
-    // auto pair2 = algos::ElGamal_Encryption(9,   // a
-    //                                        13,  // b
-    //                                        53,  // modulo (p)
-    //                                        8,   // A's secret key
-    //                                        21); // message
+    // We need to choose a different k if that is the case.
+    auto bad_encryption = algos::ElGamal_Encryption(9,   // a
+                                                    13,  // b
+                                                    53,  // modulo (p)
+                                                    8,   // A's secret key
+                                                    21); // message
 
-    // EXPECT_EQ(pair2.first, 47);  // Ciphertext
-    // EXPECT_EQ(pair2.second, 45); // Hint
+    EXPECT_EQ(bad_encryption.first.first,  0);  // Ciphertext
+    EXPECT_EQ(bad_encryption.first.second, 0);  // Hint
+    EXPECT_EQ(bad_encryption.second.first, 53); // Modulo
+    EXPECT_EQ(bad_encryption.second.second, 2); // Generator
 
-    // auto decrypted2 = algos::ElGamal_Decryption(9,      // a
-    //                                             13,     // b
-    //                                             53,     // modulo (p)
-    //                                             pair2); // {Ciphertext, Hint}
-    // EXPECT_EQ(decrypted2, 21);
+    auto bad_decryption = algos::ElGamal_Decryption(9,  // a
+                                                    13, // b
+                                                    bad_encryption); // {Ciphertext, Hint},
+                                                                     // {Modulo, Generator}
+    EXPECT_EQ(bad_decryption, 0);
 }
