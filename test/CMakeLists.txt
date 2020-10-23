@@ -14,6 +14,7 @@ add_executable(run_tests
     test_Crypto_utils.cpp
     test_Diffie_Hellman_KE.cpp
     test_ElGamal.cpp
+    test_RSA.cpp
     test_Message_utils.cpp
     test_Math_utils.cpp
 )

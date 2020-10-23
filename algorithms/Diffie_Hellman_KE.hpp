@@ -1,5 +1,5 @@
-#ifndef ALGORITHMS_HPP
-#define ALGORITHMS_HPP
+#ifndef DIFFIE_HELLMAN_KE_HPP
+#define DIFFIE_HELLMAN_KE_HPP
 
 // Standard C/C++
 #include <cassert>
@@ -17,9 +17,10 @@ namespace algos
 //!               Compute the shared key, given the secret key and the modulus.
 //! @params:      a, b are the randomly chosen secret keys within the range of 0 < a,b < p -1
 //!               p = modulo
-static inline std::uint64_t Diffie_Hellman_Key_Exchange(const std::uint64_t a,
-                                                        const std::uint64_t b,
-                                                        const std::uint64_t p)
+static inline std::uint64_t 
+Diffie_Hellman_Key_Exchange(const std::uint64_t a,
+                            const std::uint64_t b,
+                            const std::uint64_t p)
 {
     std::uint64_t shared_key{};
 
@@ -57,4 +58,4 @@ static inline std::uint64_t Diffie_Hellman_Key_Exchange(const std::uint64_t a,
 
 } // namespace crypto
 } // namespace algos
-#endif // ALGORITHMS_HPP
+#endif // DIFFIE_HELLMAN_KE_HPP

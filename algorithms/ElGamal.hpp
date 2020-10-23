@@ -1,5 +1,5 @@
-#ifndef ALGORITHMS_HPP
-#define ALGORITHMS_HPP
+#ifndef ELGAMAL_HPP
+#define ELGAMAL_HPP
 
 // Standard C/C++
 #include <algorithm>
@@ -22,12 +22,12 @@ namespace algos
 //!          plaintext = actual message we want to encrypt.
 //! @return The ciphertext and the hint required to decrypt.
 static inline std::pair<std::pair<mpz_class, mpz_class>, 
-                       std::pair<std::uint64_t, std::uint64_t>> 
-ElGamal_Encryption(const std::uint64_t a,
-                   const std::uint64_t b,
-                   const std::uint64_t p,
-                   const std::uint64_t key,
-                   const std::string   plaintext)
+                        std::pair<std::uint64_t, std::uint64_t>> 
+ElGamal_Encrypt(const std::uint64_t a,
+                const std::uint64_t b,
+                const std::uint64_t p,
+                const std::uint64_t key,
+                const std::string   plaintext)
 {
     // Get numerical representation of the plaintext.
     auto num_plaintext = message::naive_plaintext_numeric(plaintext);
@@ -84,11 +84,11 @@ ElGamal_Encryption(const std::uint64_t a,
 //! @return The ciphertext and the hint required to decrypt.
 static inline std::pair<std::pair<mpz_class, mpz_class>, 
                         std::pair<std::uint64_t, std::uint64_t>> 
-ElGamal_Encryption(const std::uint64_t a,
-                   const std::uint64_t b,
-                   const std::uint64_t p,
-                   const std::uint64_t key,
-                   const std::uint64_t numeric_message)
+ElGamal_Encrypt(const std::uint64_t a,
+                const std::uint64_t b,
+                const std::uint64_t p,
+                const std::uint64_t key,
+                const std::uint64_t numeric_message)
 {
     // Generate public keys of both A, B using their private keys: a, b.
     const auto PK_and_generator = crypto::utils::Get_Public_Keys(a, b, p);
@@ -139,11 +139,11 @@ ElGamal_Encryption(const std::uint64_t a,
                           std::make_pair(p, std::move(Generator->get_ui())));
 }
 
-static inline mpz_class ElGamal_Decryption(const std::uint64_t a,
-                                           const std::uint64_t b,
-                                           const std::pair<
-                                                    std::pair<mpz_class,     mpz_class>,
-                                                    std::pair<std::uint64_t, std::uint64_t>>& params)
+static inline mpz_class 
+ElGamal_Decrypt(const std::uint64_t a,
+                const std::uint64_t b,
+                const std::pair<std::pair<mpz_class, mpz_class>,
+                                std::pair<std::uint64_t, std::uint64_t>>& params)
 {
     // Make sure we actually have the ciphertext and hint.
     // Otherwise, we can't decrypt.
@@ -183,4 +183,4 @@ static inline mpz_class ElGamal_Decryption(const std::uint64_t a,
 
 } // namespace crypto
 } // namespace algos
-#endif // ALGORITHMS_HPP
+#endif // ELGAMAL_HPP

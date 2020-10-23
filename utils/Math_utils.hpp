@@ -13,7 +13,8 @@
 namespace math
 {
 // Basic Eucliean Algorithm
-static inline std::uint64_t gcd(const size_t a, const size_t b)
+static inline std::uint64_t 
+gcd(const size_t a, const size_t b)
 {
     if (a == 0)
     {
@@ -25,7 +26,8 @@ static inline std::uint64_t gcd(const size_t a, const size_t b)
 // Get all prime factors
 // Implicit conversion takes care of smaller integer types.
 // Not efficient, but there's not enough type to add template metaprogramming.
-static inline std::vector<std::uint64_t> get_prime_factors(std::uint64_t num)
+static inline std::vector<std::uint64_t> 
+get_prime_factors(std::uint64_t num)
 {
     std::vector<size_t> prime_factors;
     prime_factors.reserve(5);
@@ -67,14 +69,16 @@ static inline std::set<size_t> get_prime_factors_unq(const std::uint64_t num)
 
 // Helper function since std::pow isn't overloaded for integer types.
 template<typename T>
-static inline mpz_class IPow(const T base, const T power)
+static inline mpz_class 
+IPow(const T base, const T power)
 {
     mpz_class rop{};
     mpz_ui_pow_ui(rop.get_mpz_t(), base, power);
     return rop;
 }
 
-static inline std::size_t find_smallest_generator(const size_t num, const size_t exception = 0)
+static inline std::size_t 
+find_smallest_generator(const size_t num, const size_t exception = 0)
 {
     // Get factors of p - 1
     auto factors = get_prime_factors_unq(num - 1);
@@ -133,7 +137,8 @@ static inline std::size_t find_smallest_generator(const size_t num, const size_t
 
 // @params: num = modulo
 //          g = generator to try
-static inline bool is_generator(const size_t num, const size_t g)
+static inline bool 
+is_generator(const size_t num, const size_t g)
 {
     // Get factors of p - 1
     auto factors = get_prime_factors_unq(num - 1);
@@ -161,6 +166,15 @@ static inline bool is_generator(const size_t num, const size_t g)
     }
 
     return gtor;
+}
+
+
+// TODO: Unify with non primes function
+static inline mpz_class 
+Euler_Totient_primes(const mpz_class p,
+                     const mpz_class q)
+{
+    return (p - 1) * (q - 1);
 }
 
 } // namespace math

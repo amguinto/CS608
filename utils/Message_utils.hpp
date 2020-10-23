@@ -34,7 +34,8 @@ static const std::map<char, std::size_t> numeric_plaintext_map = {
 //     { 'y', "24" }, { 'z', "25" }
 // };
 
-static inline std::size_t char_to_numeric(const char& charac)
+static inline std::size_t 
+char_to_numeric(const char& charac)
 {
     std::size_t numeric = std::numeric_limits<std::size_t>::max();
 
@@ -53,7 +54,8 @@ static inline std::size_t char_to_numeric(const char& charac)
 
 // TODO: Add block sizes here.
 template<typename T>
-static inline char numeric_to_char(const T num)
+static inline char 
+numeric_to_char(const T num)
 {
     char c{};
     for (const auto& e : numeric_plaintext_map)
@@ -69,7 +71,8 @@ static inline char numeric_to_char(const T num)
     return c;
 }
 
-static inline std::vector<std::size_t> naive_plaintext_numeric(const std::string& str)
+static inline std::vector<std::size_t> 
+naive_plaintext_numeric(const std::string& str)
 {
     std::vector<std::size_t> numeric_form;
     numeric_form.reserve(str.size() * 2);
@@ -83,7 +86,8 @@ static inline std::vector<std::size_t> naive_plaintext_numeric(const std::string
     return numeric_form;
 }
 
-static inline mpz_class encode_naive_representation(const std::vector<std::size_t>& numeric_form)
+static inline mpz_class 
+encode_naive_representation(const std::vector<std::size_t>& numeric_form)
 {
     mpz_class compressed_num{};
     for (std::size_t i = 0, r = numeric_form.size() - 1;
@@ -97,7 +101,8 @@ static inline mpz_class encode_naive_representation(const std::vector<std::size_
     return compressed_num;
 }
 
-static inline std::string decode_naive_representation(mpz_class compressed_num)
+static inline std::string 
+decode_naive_representation(mpz_class compressed_num)
 {
     std::string text = "";
     for (;;)

@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-TEST(tests_Algorithms, Get_Public_Keys)
+TEST(tests_Crypto_utils, Get_Public_Keys)
 {
     auto PKeys = crypto::utils::Get_Public_Keys(51,
                                                 92,
