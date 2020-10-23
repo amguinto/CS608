@@ -11,7 +11,9 @@ find_package(GMP REQUIRED)
 
 
 add_executable(run_tests
-    test_Algorithms.cpp
+    test_Crypto_utils.cpp
+    test_Diffie_Hellman_KE.cpp
+    test_ElGamal.cpp
     test_Message_utils.cpp
     test_Math_utils.cpp
 )

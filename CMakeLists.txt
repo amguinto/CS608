@@ -18,6 +18,7 @@ add_executable(CS608
     main.cpp
     utils/Math_utils.hpp
     utils/Message_utils.hpp
+    utils/Crypto_utils.hpp
 )
 
 target_link_libraries(CS608 gmp gmpxx gtest)
