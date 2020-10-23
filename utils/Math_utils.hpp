@@ -1,7 +1,11 @@
 #ifndef MATH_UTILS_HPP
 #define MATH_UTILS_HPP
 
+// Standard C/C++
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <iostream>
 #include <limits>
 #include <math.h>
 #include <set>
@@ -13,14 +17,22 @@
 namespace math
 {
 // Basic Eucliean Algorithm
-static inline std::uint64_t 
-gcd(const size_t a, const size_t b)
+template <typename T>
+static inline T
+gcd(const T a, const T b)
 {
     if (a == 0)
     {
         return b;
     }
     return gcd(b % a, a);
+}
+
+template <typename T>
+static inline bool
+is_coprime(const T a, const T b)
+{
+    return (math::gcd(a, b) == 1);
 }
 
 // Get all prime factors
@@ -171,11 +183,91 @@ is_generator(const size_t num, const size_t g)
 
 // TODO: Unify with non primes function
 static inline mpz_class 
-Euler_Totient_primes(const mpz_class p,
-                     const mpz_class q)
+Euler_Totient_primes(const mpz_class& p,
+                     const mpz_class& q)
 {
     return (p - 1) * (q - 1);
 }
+
+static inline mpz_class
+Multiplicative_Inverse(const mpz_class& x, // What we want the inverse of
+                       const mpz_class& modulo)
+{
+    // First we need to check if the gcd(x, modulo) are coprime.
+    assert(is_coprime(x, modulo));
+
+    mpz_class result{};
+
+    // Remainder/Quotient pair.
+    std::vector<mpz_class> remainders;
+    remainders.reserve(5);
+
+    // Put the first x value.
+    remainders.emplace_back(x);
+
+    std::vector<mpz_class> quotients;
+    quotients.reserve(5);
+
+    mpz_class q{};
+    mpz_class r{};
+
+    mpz_class dividend(modulo);
+    mpz_class divisor(x);
+    while (true)
+    {
+        mpz_fdiv_qr(q.get_mpz_t(),
+                    r.get_mpz_t(),
+                    dividend.get_mpz_t(),
+                    divisor.get_mpz_t());
+
+        dividend = divisor;
+        divisor = r;
+        
+        remainders.emplace_back(r);
+        quotients.emplace_back(q);
+
+        if (r == 0)
+        {
+            std::cerr << "The inverse does not exist." << std::endl;
+            break;
+        }
+        else if (r == 1)
+        {
+            mpz_class prev{};
+            mpz_class curr(1);
+            for (auto i = quotients.crbegin(); i != quotients.crend(); ++i)
+            {
+                auto old_curr = curr;
+                curr = (curr * (*i)) + prev;
+                prev = old_curr;
+            }
+
+            if (remainders.size() % 2 == 0)
+            {
+                result = modulo - curr;
+            }
+            else
+            {
+                result = curr;
+            }
+
+            break;
+        }
+    }
+
+    // Confirm the inverse is correct.
+    mpz_class test_result{};
+    mpz_class test_base(result * x);
+    mpz_powm_ui(test_result.get_mpz_t(), 
+                test_base.get_mpz_t(), 
+                1, 
+                modulo.get_mpz_t());
+    
+    assert(test_result == 1);
+
+    return result;
+}
+
 
 } // namespace math
 #endif // MATH_UTILS_HPP
