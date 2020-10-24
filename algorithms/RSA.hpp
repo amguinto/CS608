@@ -60,8 +60,8 @@ RSA_Encrypt(const mpz_class& message,
 }
 
 //! @description: Decrypt using the RSA protocol
-//! @params: ciphertext: numerical representation of the plaintext
-//!          e:          small number coprime to phi(n)
+//! @params: d: private key
+//!          n: modulo
 //! @return  message:    return the numerical representation of the plaintext
 static inline mpz_class
 RSA_Decrypt(const mpz_class& ciphertext,
@@ -75,6 +75,61 @@ RSA_Decrypt(const mpz_class& ciphertext,
                 n.get_mpz_t());         // Modulo is n
     
     return message;
+}
+
+//! @description: Sign and Encrypt using RSA Digital Signatures
+//! @params: private_key: private key of the sender
+//!          PK_sender: public key pair of the sender {m, e}
+//!          PK_receiver: public key pair of the receiver {m, e}
+//! @return  encryption
+static inline mpz_class
+RSA_Sign_and_Encrypt(const mpz_class& private_key,
+                     const std::pair<mpz_class, mpz_class>& PK_sender,   // {m, e}
+                     const std::pair<mpz_class, mpz_class>& PK_receiver, // {n, h}
+                     const mpz_class& message)
+{
+    mpz_class signature{};
+    mpz_powm_ui(signature.get_mpz_t(),
+                message.get_mpz_t(),          // Base is the message
+                private_key.get_ui(),         // Exponent is the private key
+                PK_sender.first.get_mpz_t()); // Modulo is first part of the public key of the Sender
+
+    mpz_class encryption{};
+    mpz_powm_ui(encryption.get_mpz_t(),
+                signature.get_mpz_t(),          // Base is the signature from the previous calculation
+                PK_receiver.second.get_ui(),    // Exponent is the second part of the public key of the Receiver
+                PK_receiver.first.get_mpz_t()); // Modulo is first part of the public key of the Receiver
+
+    return encryption;
+}
+
+//! @description: Sign and Encrypt using RSA Digital Signatures
+//! @params: private_key: private key of the receiver
+//!          encryption:
+//!          PK_sender: public key pair of the sender {m, e}
+//!          PK_receiver: public key pair of the receiver {m, e}
+//! @return  encryption
+static inline mpz_class
+RSA_Decrypt_and_Verify(const mpz_class& private_key,
+                       const mpz_class& encryption,
+                       const std::pair<mpz_class, mpz_class>& PK_sender,   // {m, e}
+                       const std::pair<mpz_class, mpz_class>& PK_receiver, // {n, h}
+                       const mpz_class& message)
+{
+    mpz_class decryption{};
+    mpz_powm_ui(decryption.get_mpz_t(),
+                encryption.get_mpz_t(),         // Base is the encryption from the Sender
+                private_key.get_ui(),           // Exponent is the private key of the receiver
+                PK_receiver.first.get_mpz_t()); // Modulo is first part of the public key of the Receiver.
+
+    mpz_class verification{};
+    mpz_powm_ui(verification.get_mpz_t(),
+                decryption.get_mpz_t(),        // Base is the signature from the previous calculation
+                PK_sender.second.get_ui(),    // Exponent is the second part of the public key of the Sender
+                PK_sender.first.get_mpz_t()); // Modulo is first part of the public key of the Sender
+
+    // Make sure we verify the message.
+    return verification == message;
 }
 
 } // namespace crypto

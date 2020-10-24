@@ -51,3 +51,13 @@ TEST(test_RSA, RSA_Cryptosystem)
                                               n2);
     EXPECT_EQ(message, 6);
 }
+
+TEST(test_RSA, RSA_Sign_and_Encrypt)
+{
+
+}
+
+TEST(test_RSA, RSA_Decrypt_and_Verify)
+{
+
+}
