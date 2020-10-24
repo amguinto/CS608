@@ -139,6 +139,10 @@ ElGamal_Encrypt(const std::uint64_t a,
                           std::make_pair(p, std::move(Generator->get_ui())));
 }
 
+//! @description: ElGamal Decryption to compute the plaintext.
+//! @params: a, b:   the randomly chosen secret keys that were used for encryption
+//!          params: {Ciphertext, Hint}, {Modulo, Generator}
+//! @return The ciphertext and the hint required to decrypt.
 static inline mpz_class 
 ElGamal_Decrypt(const std::uint64_t a,
                 const std::uint64_t b,
@@ -179,6 +183,118 @@ ElGamal_Decrypt(const std::uint64_t a,
                 modulo.get_mpz_t());      // Modulo
 
     return decryption;
+}
+
+//! @description: ElGamal Public Key Generation for the sender (Digital Signatures)
+//! @params: secret_key: r in the equation, a random integer such that 0 < r < p - 1
+//!          modulo
+//! @return {key}, {generator, modulo}
+static inline std::pair<mpz_class, std::pair<mpz_class, mpz_class>> 
+ElGamal_Key_Generation(const mpz_class& secret_key,
+                       const mpz_class& modulo)
+{
+    assert(secret_key > 0 && secret_key < modulo - 1);
+
+    mpz_class key{};
+    mpz_class generator(math::find_smallest_generator(modulo));
+    mpz_powm_ui(key.get_mpz_t(),       // Result buffer
+                generator.get_mpz_t(), // Base
+                secret_key.get_ui(),   // Exponent
+                modulo.get_mpz_t());   // Modulo
+
+    return std::make_pair(key, std::make_pair(generator, modulo));
+}
+
+//! @description: ElGamal Signing to sign message M
+//! @params: R: different secret key from key generation, 0 < R < modulo - 1 and coprime to modulo - 1
+//!          r: secret key used for key generation
+//!          message:
+//!          modulo:
+//!          generator
+//! @return {message, Public Key}, {X, Y}}
+static inline std::pair<std::pair<mpz_class, mpz_class>, std::pair<mpz_class, mpz_class>> 
+ElGamal_Sign(const mpz_class& R, // Different Secret Key
+             const mpz_class& r,
+             const mpz_class& message,
+             const mpz_class& modulo,
+             const mpz_class& generator)
+{
+    assert(math::is_coprime(R, mpz_class(modulo - 1)));
+
+    // Find X = g^R mod p
+    mpz_class X{};
+    mpz_powm_ui(X.get_mpz_t(),         // Result buffer
+                generator.get_mpz_t(), // Base
+                R.get_ui(),            // Exponent
+                modulo.get_mpz_t());   // Modulo
+
+
+    // Find Y, so message = rX + RY mod modulo-1
+    // Rewritten as Y = (M - rX) * R^-1 modulo-1
+    mpz_class Y{};
+    mpz_class R_inverse(math::Multiplicative_Inverse(R, modulo - 1));
+    mpz_class base((message - (r * X)) * R_inverse);
+    mpz_class p(modulo - 1);
+    mpz_powm_ui(Y.get_mpz_t(),    // Result buffer
+                base.get_mpz_t(), // Base
+                1,                // Exponent
+                p.get_mpz_t());   // Modulo
+    
+    // Calculate Public Key K to be used for verification.
+    // g^r
+    mpz_class K{};
+    mpz_powm_ui(K.get_mpz_t(),        // Result buffer
+               generator.get_mpz_t(), // Base
+               r.get_ui(),            // Exponent
+               modulo.get_mpz_t());   // Modulo
+
+    return std::make_pair(std::make_pair(message, K),
+                          std::make_pair(X, Y));
+}
+
+//! @description: ElGamal Verification to verify message M
+//! @params: public_key: public key of the sender
+//!          X: param1
+//!          Y: param2
+//!          modulo:
+//!          message:
+//!          generator
+//! @return whether or not the calculations add up to be correct. The actual number is irrelevant.
+static inline bool 
+ElGamal_Verify(const mpz_class& public_key, // public key of the sender
+               const mpz_class& X,
+               const mpz_class& Y,
+               const mpz_class& message,
+               const mpz_class& modulo,
+               const mpz_class& generator)
+{
+    // We want to solve (K^X)(K^Y) mod p
+    mpz_class K_X{};
+    mpz_pow_ui(K_X.get_mpz_t(),        // Result buffer
+               public_key.get_mpz_t(), // Base
+               X.get_ui());            // Exponent
+
+    // X^Y
+    mpz_class X_Y{};
+    mpz_pow_ui(X_Y.get_mpz_t(), // Result buffer
+               X.get_mpz_t(),   // Base
+               Y.get_ui());     // Exponent
+
+    mpz_class base(K_X * X_Y);
+    mpz_class result{};
+    mpz_powm_ui(result.get_mpz_t(),  // Result buffer
+                base.get_mpz_t(),    // Base
+                1,                   // Exponent
+                modulo.get_mpz_t()); // Modulo
+
+    // Calculate verification
+    mpz_class verification{};
+    mpz_powm_ui(verification.get_mpz_t(), // Result buffer
+                generator.get_mpz_t(),    // Base
+                message.get_ui(),         // Exponent
+                modulo.get_mpz_t());      // Modulo
+
+    return result == verification;
 }
 
 } // namespace crypto

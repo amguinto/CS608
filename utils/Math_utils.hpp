@@ -38,15 +38,16 @@ is_coprime(const T a, const T b)
 // Get all prime factors
 // Implicit conversion takes care of smaller integer types.
 // Not efficient, but there's not enough type to add template metaprogramming.
-static inline std::vector<std::uint64_t> 
-get_prime_factors(std::uint64_t num)
+template<typename T>
+static inline std::vector<T> 
+get_prime_factors(T num)
 {
-    std::vector<size_t> prime_factors;
+    std::vector<T> prime_factors;
     prime_factors.reserve(5);
 
     while(num % 2 == 0)
     {
-        prime_factors.emplace_back(2);
+        prime_factors.emplace_back(static_cast<T>(2));
         num /= 2;
     }
 
@@ -70,10 +71,12 @@ get_prime_factors(std::uint64_t num)
 }
 
 // Get only the unique prime factors
-static inline std::set<size_t> get_prime_factors_unq(const std::uint64_t num)
+template<typename T>
+static inline std::set<size_t> get_prime_factors_unq(const T num)
 {
-    auto all_primes = get_prime_factors(num);
-    std::set<size_t> prime_factors_unq(all_primes.begin(), all_primes.end()); 
+    mpz_class n(num);
+    auto all_primes = get_prime_factors(n.get_ui());
+    std::set<std::uint64_t> prime_factors_unq(all_primes.begin(), all_primes.end()); 
 
     return prime_factors_unq;
 }
@@ -89,8 +92,9 @@ IPow(const T base, const T power)
     return rop;
 }
 
-static inline std::size_t 
-find_smallest_generator(const size_t num, const size_t exception = 0)
+template<typename T>
+static inline T 
+find_smallest_generator(const T num, const T exception = 0)
 {
     // Get factors of p - 1
     auto factors = get_prime_factors_unq(num - 1);
@@ -122,10 +126,10 @@ find_smallest_generator(const size_t num, const size_t exception = 0)
         for (const auto& e : factors)
         {
             mpz_class result{};
-            std::size_t pow = (num - 1) / e;
+            mpz_class pow((num - 1) / e);
             mpz_powm_ui(result.get_mpz_t(), 
                         base.get_mpz_t(), 
-                        pow, 
+                        pow.get_ui(), 
                         modulo.get_mpz_t());
 
             // std::cout << "result = " << result << "\ti = " << i << "\texponent = " << pow << std::endl;

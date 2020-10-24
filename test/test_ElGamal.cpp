@@ -47,8 +47,40 @@ TEST(test_ElGamal, ElGamal_Cryptosystem)
     EXPECT_EQ(bad_encryption.second.second, 2); // Generator
 
     auto bad_decryption = crypto::algos::ElGamal_Decrypt(9,  // a
-                                                            13, // b
-                                                            bad_encryption); // {Ciphertext, Hint},
-                                                                             // {Modulo, Generator}
+                                                         13, // b
+                                                         bad_encryption); // {Ciphertext, Hint},
+                                                                          // {Modulo, Generator}
     EXPECT_EQ(bad_decryption, 0);
+}
+
+TEST(test_ElGamal, ElGamal_Key_Generation)
+{
+    auto key = crypto::algos::ElGamal_Key_Generation(8, 11);
+    EXPECT_EQ(key.first, 3);          // key
+    EXPECT_EQ(key.second.first, 2);   // generator
+    EXPECT_EQ(key.second.second, 11); // modulo
+}
+
+TEST(test_ElGamal, ElGamal_Signing)
+{
+    auto signing = crypto::algos::ElGamal_Sign(9,  // Different Secret key R
+                                               8,  // Secret key used in key generation, r
+                                               5,  // message
+                                               11, // modulo
+                                               2); // generator
+    EXPECT_EQ(signing.first.first, 5);   // message
+    EXPECT_EQ(signing.first.second, 3); // Public key of sender
+    EXPECT_EQ(signing.second.first, 6);  // X
+    EXPECT_EQ(signing.second.second, 3); // Y
+}
+
+TEST(test_ElGamal, ElGamal_Verification)
+{
+    auto verification = crypto::algos::ElGamal_Verify(3,  // Public key of sender
+                                                      6,  // X
+                                                      3,  // Y
+                                                      5,  // message
+                                                      11, // modulo
+                                                      2); // generator
+    EXPECT_TRUE(verification);
 }
