@@ -24,6 +24,16 @@ TEST(test_Message_utils, naive_plaintext_numeric)
     EXPECT_EQ(naive[0][2], 9);  // i
     EXPECT_EQ(naive[0][3], 20); // t
 
+    // for (const auto& block : naive)
+    // {
+    //     std::cout << "block = ";
+    //     for (const auto& c : block)
+    //     {
+    //         std::cout << c << "\t";
+    //     }
+    //     std::cout << std::endl;
+    // }
+
     // Block size of 1.
     auto naive1 = message::naive_plaintext_numeric("njit", 1);
     EXPECT_EQ(naive1.size(), 4);    // Number of blocks
@@ -33,6 +43,7 @@ TEST(test_Message_utils, naive_plaintext_numeric)
     EXPECT_EQ(naive1[1][0], 10); // j
     EXPECT_EQ(naive1[2][0], 9);  // i
     EXPECT_EQ(naive1[3][0], 20); // t
+
 
     // Block size of 10, we would have 0 padding.
     auto naive2 = message::naive_plaintext_numeric("njit", 10);
@@ -48,15 +59,30 @@ TEST(test_Message_utils, naive_plaintext_numeric)
     EXPECT_EQ(naive2[0][7], 0);  // 0
     EXPECT_EQ(naive2[0][8], 0);  // 0
     EXPECT_EQ(naive2[0][9], 0);  // 0
-    // for (const auto& block : naive2)
-    // {
-    //     std::cout << "block = ";
-    //     for (const auto& c : block)
-    //     {
-    //         std::cout << c << "\t";
-    //     }
-    //     std::cout << std::endl;
-    // }
+
+
+    // Block size of 3.
+    auto naive3 = message::naive_plaintext_numeric("njit", 3);
+    EXPECT_EQ(naive3.size(), 2);    // Number of blocks
+    EXPECT_EQ(naive3[0].size(), 3); // Number of characters per block
+
+    EXPECT_EQ(naive3[0][0], 14); // n
+    EXPECT_EQ(naive3[0][1], 10); // j
+    EXPECT_EQ(naive3[0][2], 9);  // i
+    EXPECT_EQ(naive3[1][0], 20); // t
+    EXPECT_EQ(naive3[1][1], 0);  // 0
+    EXPECT_EQ(naive3[1][2], 0);  // 0
+
+
+    // Block size of 2.
+    auto naive4 = message::naive_plaintext_numeric("njit", 2);
+    EXPECT_EQ(naive4.size(), 2);    // Number of blocks
+    EXPECT_EQ(naive4[0].size(), 2); // Number of characters per block
+
+    EXPECT_EQ(naive4[0][0], 14); // n
+    EXPECT_EQ(naive4[0][1], 10); // j
+    EXPECT_EQ(naive4[1][0], 9);  // i
+    EXPECT_EQ(naive4[1][1], 20); // t
 }
 
 TEST(test_Message_utils, encode_naive_representation)

@@ -23,6 +23,7 @@ static const std::map<char, std::size_t> numeric_plaintext_map = {
     { 'u', 21 }, { 'v', 22 }, { 'w', 23 }, { 'x', 24 },
     { 'y', 25 }, { 'z', 26 }, { ' ', 27 }, { '\0',  0 }
 };
+
 // Example in textbook.
 // static const std::map<char, std::size_t> numeric_plaintext_map = {
 //     { 'a', 0 },  { 'b', 1  }, { 'c', 2 },  { 'd', 3  }, 
@@ -72,7 +73,6 @@ char_to_numeric(const char& charac)
     return numeric;
 }
 
-// TODO: Add block sizes here.
 template<typename T>
 static inline char 
 numeric_to_char(const T num)
@@ -94,6 +94,8 @@ numeric_to_char(const T num)
 static inline std::vector<std::vector<std::size_t>>
 naive_plaintext_numeric(const std::string& plaintext, std::size_t block_size)
 {
+    assert(block_size > 0);
+
     std::vector<std::vector<std::size_t>> all_blocks;
     all_blocks.reserve(std::ceil(plaintext.size() / block_size));
 
@@ -112,8 +114,8 @@ naive_plaintext_numeric(const std::string& plaintext, std::size_t block_size)
         if (b >= block_size - 1)
         {
             // std::cout << "reached block limit" << std::endl;
-            // Reset block counter.
-            b = 0;
+            // Reset block counter to -1 because we are incrementing b after this.
+            b = -1;
 
             // std::cout << "clearing out block after adding character: " << plaintext[i] << std::endl;
             all_blocks.emplace_back(block);
