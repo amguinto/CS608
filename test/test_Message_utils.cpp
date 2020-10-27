@@ -6,6 +6,7 @@
 
 TEST(test_Message_utils, naive_plaintext_numeric)
 {
+#ifndef using_ASCII
     // Old version.
     auto naive_old = message::naive_plaintext_numeric("njit");
     EXPECT_EQ(naive_old[0], 14);
@@ -83,10 +84,12 @@ TEST(test_Message_utils, naive_plaintext_numeric)
     EXPECT_EQ(naive4[0][1], 10); // j
     EXPECT_EQ(naive4[1][0], 9);  // i
     EXPECT_EQ(naive4[1][1], 20); // t
+#endif
 }
 
 TEST(test_Message_utils, encode_naive_representation)
 {
+#ifndef using_ASCII
     auto naive = message::naive_plaintext_numeric("njit", 4);
     auto compressed = message::encode_naive_representation(naive);
     EXPECT_EQ(compressed.size(), 1);
@@ -107,10 +110,12 @@ TEST(test_Message_utils, encode_naive_representation)
     auto compressed2 = message::encode_naive_representation(naive2);
     EXPECT_EQ(compressed2.size(), 1);
     EXPECT_EQ(compressed2[0], 315440);
+#endif
 }
 
 TEST(test_Message_utils, decode_naive_representation)
 {
+#ifndef using_ASCII
     // Deprecated version
     std::string decoded = message::decode_naive_representation(315440);
     EXPECT_EQ(decoded, "njit");
@@ -119,15 +124,23 @@ TEST(test_Message_utils, decode_naive_representation)
     std::vector<mpz_class> compressed;
     mpz_class block(315440);
     compressed.emplace_back(block);
-    std::string message = message::decode_naive_representation(compressed);
-    EXPECT_EQ(message, "njit");
+    std::string m = message::decode_naive_representation(compressed);
+    EXPECT_EQ(m, "njit");
 
 
     // 1 character per block.
     auto numeric_blocks = message::naive_plaintext_numeric("njit", 1);
     auto compressed_blocks = message::encode_naive_representation(numeric_blocks);
+    std::string message = message::decode_naive_representation(compressed_blocks);
+    EXPECT_EQ(message, "njit");
+
+
+    // 2 characters per block.
+    auto numeric_blocks2 = message::naive_plaintext_numeric("njit", 2);
+    auto compressed_blocks2 = message::encode_naive_representation(numeric_blocks);
     std::string message2 = message::decode_naive_representation(compressed_blocks);
     EXPECT_EQ(message2, "njit");
+#endif
 }
 
 TEST(test_Message_utils, long_message)
@@ -145,12 +158,23 @@ TEST(test_Message_utils, long_message)
 
 }
 
-// TEST(test_Message_utils, practice_test)
-// {
-//     std::string str = "Do not send files as attachments to eMails";
-//     auto naive = message::naive_plaintext_numeric(str);
-//     auto compressed = message::encode_naive_representation(naive);
-//     std::string decoded = message::decode_naive_representation(compressed);
-//     EXPECT_EQ(str, decoded);
-//     std::cout << decoded << std::endl;
-// }
+TEST(test_Message_utils, ASCII)
+{
+#ifdef using_ASCII
+    std::string str = "Do not send files";
+    auto naive = message::naive_plaintext_numeric(str, 2);
+    auto compressed = message::encode_naive_representation(naive);
+    std::string decoded = message::decode_naive_representation(compressed);
+    EXPECT_EQ(str, decoded);
+
+    // for (const auto& block : naive)
+    // {
+    //     std::cout << "block = ";
+    //     for (const auto& c : block)
+    //     {
+    //         std::cout << c << "\t";
+    //     }
+    //     std::cout << std::endl;
+    // }
+#endif
+}
