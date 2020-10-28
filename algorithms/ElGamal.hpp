@@ -41,6 +41,9 @@ ElGamal_Encrypt(const std::uint64_t a,
     const auto PK_B      = std::make_unique<mpz_class>(PK_and_generator.first.second);
     const auto Generator = std::make_unique<mpz_class>(PK_and_generator.second);
 
+    std::cout << "Public key of A (inside function) = " << *PK_A << std::endl;
+    std::cout << "Public key of B (inside function) = " << *PK_B << std::endl;
+
     // Initialize GMP datatypes.
     mpz_class base(*Generator); // generator
     mpz_class modulo(p);
@@ -54,6 +57,17 @@ ElGamal_Encrypt(const std::uint64_t a,
                 key,                 // Exponent
                 modulo.get_mpz_t()); // Modulo
 
+    std::cout << "mask = " << mask << std::endl;
+    assert(mask != 1);
+
+    // We need to make sure the mask is NEVER 1.
+    // The inverse would be too trivial to calculate.
+    if (mask == 1)
+    {
+        return std::make_pair(std::make_pair(mpz_class{}, mpz_class{}),
+                              std::make_pair(p, std::move(Generator->get_ui())));
+    }
+
     // Calculate Ciphertext.
     // A uses B's public key to encrypt. Therefore it is used in the mask calculation.
     // A also uses its secret key (exponent) in the mask calculation
@@ -64,13 +78,16 @@ ElGamal_Encrypt(const std::uint64_t a,
                 1,                           // Exponent
                 modulo.get_mpz_t());         // Modulo
 
-    
+    std::cout << "ciphertext = " << ciphertext << std::endl;
+
     // Calculate Hint.
     mpz_class hint{};
     mpz_powm_ui(hint.get_mpz_t(),    // Result buffer
                 base.get_mpz_t(),    // Base
                 key,                 // Exponent
                 modulo.get_mpz_t()); // Modulo
+
+    std::cout << "hint = " << hint << std::endl;
 
     return std::make_pair(std::make_pair(ciphertext, hint),
                           std::make_pair(p, std::move(Generator->get_ui())));
@@ -90,11 +107,17 @@ ElGamal_Encrypt(const std::uint64_t a,
                 const std::uint64_t key,
                 const std::uint64_t numeric_message)
 {
+    // VERY IMPORTANT
+    assert(numeric_message < p);
+
     // Generate public keys of both A, B using their private keys: a, b.
     const auto PK_and_generator = crypto::utils::Get_Public_Keys(a, b, p);
     const auto PK_A      = std::make_unique<mpz_class>(PK_and_generator.first.first);
     const auto PK_B      = std::make_unique<mpz_class>(PK_and_generator.first.second);
     const auto Generator = std::make_unique<mpz_class>(PK_and_generator.second);
+
+    std::cout << "Public key of A (inside function) = " << *PK_A << std::endl;
+    std::cout << "Public key of B (inside function) = " << *PK_B << std::endl;
 
     // Initialize GMP datatypes.
     mpz_class base(*Generator); // generator
@@ -108,6 +131,9 @@ ElGamal_Encrypt(const std::uint64_t a,
                 PK_B->get_mpz_t(),   // Base
                 key,                 // Exponent
                 modulo.get_mpz_t()); // Modulo
+
+    std::cout << "mask = " << mask << std::endl;
+    assert(mask != 1);
 
     // We need to make sure the mask is NEVER 1.
     // The inverse would be too trivial to calculate.
@@ -127,13 +153,16 @@ ElGamal_Encrypt(const std::uint64_t a,
                 1,                           // Exponent
                 modulo.get_mpz_t());         // Modulo
     
-    
+    std::cout << "ciphertext = " << ciphertext << std::endl;
+
     // Calculate Hint.
     mpz_class hint{};
     mpz_powm_ui(hint.get_mpz_t(),    // Result buffer
                 base.get_mpz_t(),    // Base
                 key,                 // Exponent
                 modulo.get_mpz_t()); // Modulo
+
+    std::cout << "hint = " << hint << std::endl;
 
     return std::make_pair(std::make_pair(ciphertext, hint),
                           std::make_pair(p, std::move(Generator->get_ui())));
@@ -164,13 +193,16 @@ ElGamal_Decrypt(const std::uint64_t a,
 
     // Find q: p - 1 - b.
     const auto q = params.second.first - 1 - b;
-    
+    std::cout << "q = " << q << std::endl;
+
     // Get multiplicate inverse R.
     mpz_class R{};
     mpz_powm_ui(R.get_mpz_t(),                   // Result buffer
                 params.first.second.get_mpz_t(), // Base (Hint)
                 q,                               // Exponent
                 modulo.get_mpz_t());             // Modulo
+
+    std::cout << "R = " <<  R << std::endl;
 
     // Get the decrypted numerical representation
     mpz_class decryption{};
@@ -181,6 +213,8 @@ ElGamal_Decrypt(const std::uint64_t a,
                 decrypt_base.get_mpz_t(), // Base
                 1,                        // Exponent
                 modulo.get_mpz_t());      // Modulo
+
+    std::cout << "decryption (inside function) = " <<  decryption << std::endl;
 
     return decryption;
 }
@@ -219,6 +253,7 @@ ElGamal_Sign(const mpz_class& R, // Different Secret Key
              const mpz_class& modulo,
              const mpz_class& generator)
 {
+    // VERY IMPORTANT.
     assert(math::is_coprime(R, mpz_class(modulo - 1)));
 
     // Find X = g^R mod p
@@ -273,12 +308,15 @@ ElGamal_Verify(const mpz_class& public_key, // public key of the sender
     mpz_pow_ui(K_X.get_mpz_t(),        // Result buffer
                public_key.get_mpz_t(), // Base
                X.get_ui());            // Exponent
+    // std::cout << "K^X = " << K_X << std::endl;
 
     // X^Y
     mpz_class X_Y{};
     mpz_pow_ui(X_Y.get_mpz_t(), // Result buffer
                X.get_mpz_t(),   // Base
                Y.get_ui());     // Exponent
+
+    // std::cout << "X^Y = " << X_Y << std::endl;
 
     mpz_class base(K_X * X_Y);
     mpz_class result{};
@@ -287,12 +325,17 @@ ElGamal_Verify(const mpz_class& public_key, // public key of the sender
                 1,                   // Exponent
                 modulo.get_mpz_t()); // Modulo
 
+    std::cout << "ElGamal_Verify, A = " << result << std::endl;
+
     // Calculate verification
     mpz_class verification{};
     mpz_powm_ui(verification.get_mpz_t(), // Result buffer
                 generator.get_mpz_t(),    // Base
                 message.get_ui(),         // Exponent
                 modulo.get_mpz_t());      // Modulo
+
+
+    std::cout << "Verification g^m mod p = " << verification << std::endl;
 
     return result == verification;
 }

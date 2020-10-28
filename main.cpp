@@ -9,26 +9,41 @@
 
 #include "utils/Math_utils.hpp"
 #include "utils/Message_utils.hpp"
+#include "algorithms/Diffie_Hellman_KE.hpp"
+#include "algorithms/ElGamal.hpp"
+
 
 int main()
 {
-    std::cout << "Diffie Hellman Key Exchange:" << std::endl;
-    auto generator = math::find_smallest_generator(747073);
-    std::cout << generator << std::endl;
+    auto p = 104801; // modulo
+    auto r = 7;
+    auto R = 9;
+    auto message = 17;
+    /************GENERATOR*******************
+    **************************************/
+    auto gen = math::find_smallest_generator(p);
+    std::cout << "generator for " << p << " = " << gen << std::endl;
 
-    // auto a = 200;
-    // auto b = 100;
+    /************MODULAR*******************
+    **************************************/
+    mpz_class result{};
+    mpz_class base(gen);
+    mpz_class modulo(p);
 
-    // std::string example = "njit";
-    // std::cout << "GCD = " << math::gcd(a, b) << std::endl;
+    mpz_powm_ui(result.get_mpz_t(),  // Result buffer
+                base.get_mpz_t(),    // Base
+                R,                   // Exponent
+                modulo.get_mpz_t()); // Modulo)
 
-    // size_t n = 307;
-    // auto prime_factors = math::get_prime_factors_unq(n - 1);
+    std::cout << "result = " << result << std::endl;
 
-    // for (const auto& e : prime_factors)
-    // {
-    //     std::cout << e << std::endl;
-    // }
+    /************MODULAR INVERSE***********
+    **************************************/
+    // mpz_class result_inv{};
+    // mpz_class base_inv(5);
+    // mpz_class modulo_inv(5);
+    // mpz_invert(result_inv.get_mpz_t(),
+    //            base_inv.get_mpz_t(),     // What we want the inverse of
+    //            modulo_inv.get_mpz_t());  // Modulo
 
-    // std::cout << "generator = " << math::find_smallest_generator(n) << std::endl;
 }

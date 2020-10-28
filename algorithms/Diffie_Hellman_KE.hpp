@@ -37,18 +37,22 @@ Diffie_Hellman_Key_Exchange(const std::uint64_t a,
     // Generate shared key using the public keys of each other.
     // PK_A is sent to B, and PK_B is sent to A.
     // We assume the generator and the modulus (p) are already known by both parties.
-    mpz_class SK_A{}; // Buffer for the Private key of A
-    mpz_class SK_B{}; // Buffer for the Private key of B
+    mpz_class SK_A{}; // Buffer for the Public key of A
+    mpz_class SK_B{}; // Buffer for the Public key of B
 
     mpz_powm_ui(SK_A.get_mpz_t(),
                 PK_B->get_mpz_t(),   // Base is B's Public Key
                 a,                   // Exponent is A's own private key
                 modulo.get_mpz_t());
 
+    std::cout << "Public key of A (g^a)= " << *PK_A << std::endl;
+
     mpz_powm_ui(SK_B.get_mpz_t(),
                 PK_A->get_mpz_t(),   // Base is A's Public Key
                 b,                   // Exponent is B's own private key
                 modulo.get_mpz_t());
+
+    std::cout << "Public key of B (g^b)= " << *PK_B << std::endl;
 
     // Make sure the shared key matches.
     assert(SK_A == SK_B);

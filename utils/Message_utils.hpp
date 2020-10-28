@@ -47,6 +47,7 @@ static const std::map<char, int64_t> numeric_plaintext_map_ascii = {
 #define numeric_plaintext_map numeric_plaintext_map_basic
 #define SIZE_numeric_plaintext numeric_plaintext_map_basic.size()
 
+//! @thought: It seems we can reduce the map NJIT by making the size smaller
 // ASCII
 // #define using_ASCII // Helper flag.
 // #define numeric_plaintext_map numeric_plaintext_map_ascii
@@ -109,7 +110,7 @@ char_to_numeric(const char& charac)
 }
 
 template<typename T>
-static inline char 
+static inline char
 numeric_to_char(const T num)
 {
     char c{};
@@ -131,15 +132,15 @@ numeric_to_char(const T num)
     return c;
 }
 
-static inline std::vector<std::vector<std::size_t>>
+static inline std::vector<std::vector<mpz_class>>
 naive_plaintext_numeric(const std::string& plaintext, std::size_t block_size)
 {
     assert(block_size > 0);
 
-    std::vector<std::vector<std::size_t>> all_blocks;
+    std::vector<std::vector<mpz_class>> all_blocks;
     all_blocks.reserve(std::ceil(plaintext.size() / block_size));
 
-    std::vector<std::size_t> block;
+    std::vector<mpz_class> block;
     block.reserve(block_size);
 
     // i = index of string
@@ -180,10 +181,10 @@ naive_plaintext_numeric(const std::string& plaintext, std::size_t block_size)
 }
 
 // Deprecated. no block size.
-static inline std::vector<std::size_t> 
+static inline std::vector<mpz_class>
 naive_plaintext_numeric(const std::string& str)
 {
-    std::vector<std::size_t> numeric_form;
+    std::vector<mpz_class> numeric_form;
     numeric_form.reserve(str.size() * 2);
 
     for (const auto& c : str)
@@ -196,7 +197,7 @@ naive_plaintext_numeric(const std::string& str)
 }
 
 static inline std::vector<mpz_class>
-encode_naive_representation(const std::vector<std::vector<std::size_t>>& all_blocks)
+encode_naive_representation(const std::vector<std::vector<mpz_class>>& all_blocks)
 {
     std::vector<mpz_class> all_blocks_compressed;
     all_blocks_compressed.reserve(all_blocks.size());
@@ -243,7 +244,7 @@ encode_naive_representation(const std::vector<std::vector<std::size_t>>& all_blo
 
 // Deprecated. no block size.
 static inline mpz_class
-encode_naive_representation(const std::vector<std::size_t>& numeric_form)
+encode_naive_representation(const std::vector<mpz_class>& numeric_form)
 {
     mpz_class compressed_num{};
     for (std::size_t i = 0, r = numeric_form.size() - 1;

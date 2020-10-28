@@ -18,7 +18,7 @@ namespace algos
 //! @description: Create RSA Keys. Used for both Cryptosystem and Digital Signature
 //! @params: p, q: random large primes
 //!          e:    small number coprime to phi(n)
-//! @return: {e, n}, (Public Keys)
+//! @return: {m, e}, (Public Keys)
 //!           d      (Private Key, so in the real world, this is kept secret)
 static inline std::pair<std::pair<mpz_class, mpz_class>, mpz_class>
 RSA_Key_Generation_DS(const mpz_class p,
@@ -71,12 +71,15 @@ RSA_Key_Generation(const mpz_class p,
     // Make sure that the small e is coprime to phi_n
     assert(math::is_coprime(phi_n, e));
 
+    std::cout << "phi_n (in function) = " << phi_n << std::endl; 
     // Find d such that d * e mod phi_n = 1;
     // We can rewrite the function so that its: d mod phi_n = 1 * e^-1 (or the inverse of e)
     mpz_class d{};
     mpz_invert(d.get_mpz_t(),
                mpz_class(e).get_mpz_t(), // What we want the inverse of
                phi_n.get_mpz_t());       // Modulo
+
+    std::cout << "d, also known as the private key (in function) = " << d << std::endl; 
 
     // Test.
     mpz_class check{};
@@ -147,19 +150,21 @@ RSA_Sign_and_Encrypt(const mpz_class& private_key,
 {
     // VERY IMPORTANT
     assert(sender_semiprime > message);
-
+    // std::cout << "sender_semiprime = " << sender_semiprime << "\tmessage = " << message << std::endl;
     mpz_class signature{};
     mpz_powm_ui(signature.get_mpz_t(),
                 message.get_mpz_t(),           // Base is the message
                 private_key.get_ui(),          // Exponent is the private key
                 sender_semiprime.get_mpz_t()); // Modulo is m, from m = p * q
 
+    std::cout << "x = " << signature << "\t";
     mpz_class encryption{};
     mpz_powm_ui(encryption.get_mpz_t(),
                 signature.get_mpz_t(),           // Base is the signature from the previous calculation
                 PK_receiver.second.get_ui(),     // Exponent is the second part (h) of the public key of the Receiver
                 receiver_semiprime.get_mpz_t()); // Modulo is n, from n = r * s
 
+    std::cout << "y = " << encryption << std::endl;
     return encryption;
 }
 
@@ -184,11 +189,15 @@ RSA_Decrypt_and_Verify(const mpz_class& private_key,
                 private_key.get_ui(),            // Exponent is the private key of the receiver
                 receiver_semiprime.get_mpz_t()); // Modulo is n, from n = r * s
 
+    std::cout << "z = " << decryption << "\t";
+
     mpz_class verification{};
     mpz_powm_ui(verification.get_mpz_t(),
                 decryption.get_mpz_t(),        // Base is the signature from the previous calculation
                 PK_sender.second.get_ui(),     // Exponent is the second part of the public key of the Sender
                 sender_semiprime.get_mpz_t()); // Modulo is m, from m = p * q
+    
+    std::cout << "u = " << verification << std::endl;
 
     // Make sure we verify the message.
     return verification;
