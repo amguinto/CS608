@@ -155,14 +155,13 @@ TEST(test_Message_utils, long_message)
     auto compressed = message::encode_naive_representation(naive);
     std::string decoded = message::decode_naive_representation(compressed);
     EXPECT_EQ(str, decoded);
-
 }
 
 TEST(test_Message_utils, ASCII)
 {
 #ifdef using_ASCII
     std::string str = "Do not send files";
-    auto naive = message::naive_plaintext_numeric(str, 2);
+    auto naive = message::naive_plaintext_numeric(str, 4);
     auto compressed = message::encode_naive_representation(naive);
     std::string decoded = message::decode_naive_representation(compressed);
     EXPECT_EQ(str, decoded);

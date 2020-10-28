@@ -44,13 +44,13 @@ static const std::map<char, int64_t> numeric_plaintext_map_ascii = {
 
 
 // Custom map
-// #define numeric_plaintext_map numeric_plaintext_map_basic
-// #define SIZE_numeric_plaintext numeric_plaintext_map_basic.size()
+#define numeric_plaintext_map numeric_plaintext_map_basic
+#define SIZE_numeric_plaintext numeric_plaintext_map_basic.size()
 
 // ASCII
-#define using_ASCII // Helper flag.
-#define numeric_plaintext_map numeric_plaintext_map_ascii
-#define SIZE_numeric_plaintext std::size_t(126) // ASCII
+// #define using_ASCII // Helper flag.
+// #define numeric_plaintext_map numeric_plaintext_map_ascii
+// #define SIZE_numeric_plaintext std::size_t(126) // ASCII
 
 
 
