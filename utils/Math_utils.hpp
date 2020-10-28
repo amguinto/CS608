@@ -272,6 +272,34 @@ Multiplicative_Inverse(const mpz_class& x, // What we want the inverse of
     return result;
 }
 
+static inline mpz_class
+Square_and_Multiply_Exponentiation(const mpz_class& modulo,
+                                         mpz_class& base,
+                                         mpz_class& exponent)
+{
+    mpz_class A(1);
+    while (exponent > 1)
+    {
+        auto b = exponent % 2;
+        exponent = (exponent - b) / 2;
+        mpz_powm_ui(base.get_mpz_t(),
+                    base.get_mpz_t(),
+                    2, // exponent
+                    modulo.get_mpz_t());
+
+        if (b == 1)
+        {
+            mpz_class temp_base(A * base);
+            mpz_powm_ui(A.get_mpz_t(),
+                        temp_base.get_mpz_t(),
+                        1, // exponent
+                        modulo.get_mpz_t());
+            std::cout << "b = 1, new A = " << A << std::endl;
+        }
+    }
+
+    return A;
+}
 
 } // namespace math
 #endif // MATH_UTILS_HPP
