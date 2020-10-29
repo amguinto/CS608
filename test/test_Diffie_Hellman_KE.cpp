@@ -20,7 +20,7 @@ TEST(test_Diffie_Hellman_KE, Exam)
 {
     // Exchange a secret key over an insecure channel without transmitting the key over the channel.
     // Step 1: Get the modulo (prime p) and the generator
-    auto modulo = 227;
+    auto modulo = 1300027;
     auto gen = math::find_smallest_generator(1300027);
 
     // Step 2: Choose their secret keys a, b
