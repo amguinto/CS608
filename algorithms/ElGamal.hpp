@@ -108,7 +108,7 @@ ElGamal_Encrypt(const std::uint64_t a,
                 const std::uint64_t numeric_message)
 {
     // VERY IMPORTANT
-    assert(numeric_message < p);
+    // assert(numeric_message < p);
 
     // Generate public keys of both A, B using their private keys: a, b.
     const auto PK_and_generator = crypto::utils::Get_Public_Keys(a, b, p);

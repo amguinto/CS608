@@ -109,9 +109,11 @@ RSA_Encrypt(const mpz_class& message,
 
     mpz_class ciphertext{};
     mpz_powm_ui(ciphertext.get_mpz_t(),
-                mpz_class(message).get_mpz_t(), // Base is the message
+                message.get_mpz_t(), // Base is the message
                 e.get_ui(),                     // Exponent is small prime e, coprime to phi(n)
                 n.get_mpz_t());                 // Modulo is n
+
+    std::cout << "ciphertext = " << ciphertext << std::endl;
 
     return ciphertext;
 }
@@ -131,6 +133,7 @@ RSA_Decrypt(const mpz_class& ciphertext,
                 d.get_ui(),             // Exponent is the private key
                 n.get_mpz_t());         // Modulo is n
     
+    // std::cout << "message = " << message << std::endl;
     return message;
 }
 

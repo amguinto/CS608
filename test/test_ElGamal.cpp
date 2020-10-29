@@ -91,13 +91,13 @@ TEST(test_ElGamal, Exam_Cryptosystem)
     /************KEY GENERATION************
     **************************************/
     // Step 1: All users agree on a large prime p (modulo) and a generator g
-    auto modulo = 104801;
+    auto modulo = 1300027;
     auto gen = math::find_smallest_generator(modulo); // Can be given to us.
 
     // Step 2: All users A, B select their private keys a, b and calculate public keys.
-    auto a = 59;
-    auto b = 113;
-    auto k = 25; // NOTE: This is the second private key of A. If not specified, use a = k.
+    auto a = 23;
+    auto b = 529;
+    auto k = a; // NOTE: This is the second private key of A. If not specified, use a = k.
     // PK_A = g^a mod p;
     // {key}, {generator, modulo}
     auto PK_A = crypto::algos::ElGamal_Key_Generation(a,       // Private key
@@ -113,38 +113,81 @@ TEST(test_ElGamal, Exam_Cryptosystem)
 
     /**************ENCRYPTION**************
     **************************************/
-    auto message = 898;
+
+    // auto message = 898;
+    auto naive = message::naive_plaintext_numeric("cryptography");
+    auto message = message::encode_naive_representation(naive);
+    std::cout << "message = " << message << std::endl;
+    std::cout << std::endl;
     // Step 1: Calculate Ciphertext and Hint to be sent to B.
     // NOTE: We calculate the public keys again just, so we pass in private keys.
     auto send_package = crypto::algos::ElGamal_Encrypt(a, // private key of a
                                                        b, // private key of b 
                                                        modulo,
                                                        k,
-                                                       message);
-    std::cout << "ciphertext = " << send_package.first.first << std::endl;
-    std::cout << "hint = " << send_package.first.second << std::endl;
-    std::cout << "modulo = " << send_package.second.first << std::endl;
-    std::cout << "generator = " << send_package.second.second << std::endl;
+                                                       message.get_ui());
+
+    // std::vector<mpz_class> encrypted_blocks;
+    // for (const auto& block : message)
+    // {
+    //     encrypted_blocks.emplace_back(crypto::algos::ElGamal_Encrypt(a, // private key of a
+    //                                                    b, // private key of b 
+    //                                                    modulo,
+    //                                                    k,
+    //                                                    block.get_ui()));
+    // }
+
+    // for (const auto& block : encrypted_blocks)
+    // {
+    //     std::cout << "encrypted block = ";
+    //     std::cout << block << "\t";
+    // }
+
+    // std::cout << "ciphertext = " << send_package.first.first << std::endl;
+    // std::cout << "hint = " << send_package.first.second << std::endl;
+    // std::cout << "modulo = " << send_package.second.first << std::endl;
+    // std::cout << "generator = " << send_package.second.second << std::endl;
 
     /**************DECRYPTION**************
     **************************************/
+    // IMPORTANT: If we have multiple blocks, just loop.
+    // std::vector<mpz_class> decrypted_blocks;
+    // for (size_t i = 0; i < encrypted_blocks.size(); ++i)
+    // {
+    //     decrypted_blocks.emplace_back(crypto::algos::ElGamal_Decrypt(a, b, encrypted_blocks[i];
+    // }
+
+    // for (const auto& block : decrypted_blocks)
+    // {
+    //     std::cout << "decrypted block = ";
+    //     std::cout << block << "\t";
+    // }
+    // std::cout << std::endl;
+
+    // for (const auto& block : decrypted_blocks)
+    // {
+    //     std::cout << "plaintext = \t";
+    //     std::cout << message::numeric_to_char(block);
+    // }
     auto decryption = crypto::algos::ElGamal_Decrypt(a, // private key of a
                                                      b, // private key of b
                                                      send_package); // Package from A
     std::cout << "message = " << message << std::endl;
     std::cout << "decryption = " << decryption << std::endl;
-    
-    // We know this works when the decryption = message
+
+    std::string decoded = message::decode_naive_representation(decryption);
+    std::cout << "decoded = " << std::endl;
+    // // We know this works when the decryption = message
     EXPECT_EQ(decryption, message);
 }
 
 TEST(test_ElGamal, Exam_Digital_Signature)
 {
-    auto message = 17;
+    auto message = 11;
     /************KEY GENERATION************
     **************************************/
     // Step 1: Select prime p as the modulo and get the generator
-    auto modulo = 104801;
+    auto modulo = 1300027;
     auto generator = math::find_smallest_generator(modulo);
 
     // Step 2: Sender selects a random integer r (secret key) s.t. 0 < r < p - 1
@@ -157,7 +200,7 @@ TEST(test_ElGamal, Exam_Digital_Signature)
     std::cout << "modulo = " << public_key.second.second << std::endl;
 
     // public_key = {secret key r}, {generator, modulo} and is known to the public.
-    EXPECT_EQ(public_key.first, 77519);            // public key
+    EXPECT_EQ(public_key.first, 128);            // public key
     EXPECT_EQ(public_key.second.first, generator); // generator
     EXPECT_EQ(public_key.second.second, modulo);   // modulo
 
@@ -165,7 +208,7 @@ TEST(test_ElGamal, Exam_Digital_Signature)
     /**************SIGNING*****************
     **************************************/
     // Step 1: The sender selects another random integer R s.t. 0 < R < p - 1 and coprime to (p - 1) 
-    auto R = 9;
+    auto R = 11;
     auto signing = crypto::algos::ElGamal_Sign(R,          // Different Secret key R
                                                r,          // (r) Secret key used in key generation, r
                                                message,    // message
@@ -174,8 +217,8 @@ TEST(test_ElGamal, Exam_Digital_Signature)
 
     // signing = {message, Public Key}, {X, Y}
     // {X, Y} is the signature of message M
-    EXPECT_EQ(signing.first.first, 17);  // message
-    EXPECT_EQ(signing.first.second, 77519);  // Public key of sender
+    EXPECT_EQ(signing.first.first, 11);  // message
+    EXPECT_EQ(signing.first.second, 128);  // Public key of sender
     // EXPECT_EQ(signing.second.first, 6);  // X (NOTE: This is very large.)
     // EXPECT_EQ(signing.second.second, 3); // Y (NOTE: This is very large.)
 

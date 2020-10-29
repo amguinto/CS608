@@ -151,30 +151,35 @@ TEST(test_RSA, Exam_Cryptosystem)
 {
 
     // Option to choose a number or text.
-    // auto message = 548;
-    std::string plaintext = "njit";
-    auto naive = message::naive_plaintext_numeric(plaintext, 1); // Find sweet spot for block size.
-    auto message = message::encode_naive_representation(naive); // compress
+    mpz_class p_a = 1300027;
+    mpz_class message = p_a * (p_a + mpz_class(1));
+    std::cout << "message = " << message << std::endl;
+    // std::string plaintext = "crypto";
+    // auto naive = message::naive_plaintext_numeric(plaintext); // Find sweet spot for block size.
+    // auto message = message::encode_naive_representation(naive); // compress
 
     // std::cout << "message = " << message << std::endl;
 
     // IMPORTANT: If we have multiple blocks, just loop.
-    for (const auto& block : message)
-    {
-        std::cout << "plaintext block = ";
-        std::cout << block << "\t";
-    }
-    std::cout << std::endl;
+    // for (const auto& block : message)
+    // {
+    //     std::cout << "plaintext block = ";
+    //     std::cout << block << "\t";
+    // }
+    // std::cout << std::endl;
 
     /************KEY GENERATION************
     **************************************/
     // Step 1: Generate 2 large primes p, q, and let n = p * q;
-    mpz_class p(23);
-    mpz_class q(37);
+    mpz_class p(1301017);
+    mpz_class q(1300051);
     mpz_class n(p * q);
-    std::cout << "n = " << n << std::endl;
+    std::cout << "n = " << n << std::endl;    
+    std::cout << "p = " << p << std::endl;
+    std::cout << "q = " << q << std::endl;
+
     // Choose a small number e, coprime to phi(n). (Assertion handled in key gen function)
-    mpz_class e(53);
+    mpz_class e(11);
 
 
     // {e, n} => Public keys
@@ -186,56 +191,56 @@ TEST(test_RSA, Exam_Cryptosystem)
     /*************ENCRYPTION***************
     **************************************/
     // c = m^e mod n
-    // auto ciphertext = crypto::algos::RSA_Encrypt(message,
-    //                                              e,
-    //                                              n);
-    // std::cout << "ciphertext = " << ciphertext << std::endl;
+    auto ciphertext = crypto::algos::RSA_Encrypt(message,
+                                                 e,
+                                                 n);
+    std::cout << "ciphertext = " << ciphertext << std::endl;
 
 
     // IMPORTANT: If we have multiple blocks, just loop.
-    std::vector<mpz_class> encrypted_blocks;
-    for (const auto& block : message)
-    {
-        encrypted_blocks.emplace_back(crypto::algos::RSA_Encrypt(block, e, n));
-    }
+    // std::vector<mpz_class> encrypted_blocks;
+    // for (const auto& block : message)
+    // {
+    //     encrypted_blocks.emplace_back(crypto::algos::RSA_Encrypt(block, e, n));
+    // }
 
-    for (const auto& block : encrypted_blocks)
-    {
-        std::cout << "encrypted block = ";
-        std::cout << block << "\t";
-    }
-    std::cout << std::endl;
+    // for (const auto& block : encrypted_blocks)
+    // {
+    //     std::cout << "encrypted block = ";
+    //     std::cout << block << "\t";
+    // }
+    // std::cout << std::endl;
 
     /*************DECRYPTION***************
     **************************************/
     // m = c^d mod n
-    // auto decryption = crypto::algos::RSA_Decrypt(ciphertext,
-    //                                              PKeys.second, // Private key (d)
-    //                                              n);
-    // std::cout << "decryption = " << decryption << std::endl;
-    // EXPECT_EQ(message, decryption);
+    auto decryption = crypto::algos::RSA_Decrypt(ciphertext,
+                                                 PKeys.second, // Private key (d)
+                                                 n);
+    std::cout << "decryption = " << decryption << std::endl;
+    EXPECT_EQ(message, decryption);
 
 
     // IMPORTANT: If we have multiple blocks, just loop.
-    std::vector<mpz_class> decrypted_blocks;
-    for (const auto& block : encrypted_blocks)
-    {
-        decrypted_blocks.emplace_back(crypto::algos::RSA_Decrypt(block, PKeys.second, n));
-    }
+    // std::vector<mpz_class> decrypted_blocks;
+    // for (const auto& block : encrypted_blocks)
+    // {
+    //     decrypted_blocks.emplace_back(crypto::algos::RSA_Decrypt(block, PKeys.second, n));
+    // }
 
-    for (const auto& block : decrypted_blocks)
-    {
-        std::cout << "decrypted block = ";
-        std::cout << block << "\t";
-    }
-    std::cout << std::endl;
+    // for (const auto& block : decrypted_blocks)
+    // {
+    //     std::cout << "decrypted block = ";
+    //     std::cout << block << "\t";
+    // }
+    // std::cout << std::endl;
 
-    for (const auto& block : decrypted_blocks)
-    {
-        std::cout << "plaintext = \t";
-        std::cout << message::numeric_to_char(block);
-    }
-    std::cout << std::endl;
+    // for (const auto& block : decrypted_blocks)
+    // {
+    //     std::cout << "plaintext = \t";
+    //     std::cout << message::numeric_to_char(block);
+    // }
+    // std::cout << std::endl;
 }
 
 TEST(test_RSA, Exam_Digital_Signature)
