@@ -7,14 +7,14 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-// TEST(test_Diffie_Hellman_KE, Diffie_Hellman_Key_Exchange)
-// {
-//     auto SK_1 = crypto::algos::Diffie_Hellman_Key_Exchange(51, 92, 227);
-//     EXPECT_EQ(SK_1, 167);
+TEST(test_Diffie_Hellman_KE, Diffie_Hellman_Key_Exchange)
+{
+    auto SK_1 = crypto::algos::Diffie_Hellman_Key_Exchange(51, 92, 227);
+    EXPECT_EQ(SK_1, 167);
 
-//     auto SK_2 = crypto::algos::Diffie_Hellman_Key_Exchange(25, 157, 227);
-//     EXPECT_EQ(SK_2, 98);
-// }
+    auto SK_2 = crypto::algos::Diffie_Hellman_Key_Exchange(25, 157, 227);
+    EXPECT_EQ(SK_2, 98);
+}
 
 TEST(test_Diffie_Hellman_KE, Exam)
 {
@@ -33,5 +33,5 @@ TEST(test_Diffie_Hellman_KE, Exam)
                                                                  modulo);
     std::cout << "shared_key = " << shared_key << std::endl;
 
-    EXPECT_EQ(shared_key, 143);
+    EXPECT_EQ(shared_key, 775936);
 }

@@ -294,12 +294,37 @@ Square_and_Multiply_Exponentiation(const mpz_class& modulo,
                         temp_base.get_mpz_t(),
                         1, // exponent
                         modulo.get_mpz_t());
-            std::cout << "b = 1, new A = " << A << std::endl;
         }
     }
 
     return A;
 }
+
+//! @description: x^2 = a mod p or r = sqrt(a) mod p exists
+//!               if p mod 4 = 3 and a has a square root,
+//!               then r = a^( (p + 1) / 4 ) mod p
+// static inline mpz_class
+// Square_Roots_Modulo(const mpz_class& modulo,
+//                     const mpz_class& base)
+// {
+//     // x^2 = base % modulo
+//     mpz_class x_2{};
+//     mpz_powm_ui(x_2.get_mpz_t(),     // buffer
+//                 base.get_mpz_t(),    // base
+//                 1,                   // exponent
+//                 modulo.get_mpz_t()); // modulo
+
+//     // find r = a^( (p + 1) / 4 ) mod p
+//     mpz_class r{};
+//     mpz_class base2(IPow(base, (modulo + mpz_class(1) / mpz_class(4))));
+//     mpz_powm_ui(r.get_mpz_t(),       // buffer
+//                 base2.get_mpz_t(),   // base
+//                 1,                   // exponent
+//                 modulo.get_mpz_t()); // modulo
+
+//     // Test
+
+// }
 
 } // namespace math
 #endif // MATH_UTILS_HPP

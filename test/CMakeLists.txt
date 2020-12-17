@@ -17,6 +17,7 @@ add_executable(run_tests
     test_RSA.cpp
     test_Message_utils.cpp
     test_Math_utils.cpp
+    test_Zero_Knowledge_Proof.cpp
 )
 
 target_link_libraries(run_tests 
