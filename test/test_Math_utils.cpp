@@ -64,12 +64,12 @@ TEST(test_Math_utils, Find_All_Points_ECC)
 
 
     // This returns 0 if no roots.
-    for (const auto& coords : coordinates)
-    {
-        std::cout << "modulo = " << modulo << "\ta = " << a << "\tb = " << b << std::endl;
-        std::cout << "coordinates: (" << coords.first << ", " << coords.second << ")" << std::endl;
-        std::cout << std::endl;
-    }
+    // for (const auto& coords : coordinates)
+    // {
+    //     std::cout << "modulo = " << modulo << "\ta = " << a << "\tb = " << b << std::endl;
+    //     std::cout << "coordinates: (" << coords.first << ", " << coords.second << ")" << std::endl;
+    //     std::cout << std::endl;
+    // }
 }
 
 TEST(test_Math_utils, Add_points_to_ECC)
@@ -89,11 +89,14 @@ TEST(test_Math_utils, Add_points_to_ECC)
 
 TEST(test_Math_utils, Scalar_mult_points_to_ECC)
 {
-    mpz_class x_1(16);
-    mpz_class y_1(3096);
+    mpz_class x_1(4);
+    mpz_class y_1(14);
 
+    mpz_class k = 3;
+    mpz_class modulo = 23;
+    mpz_class a = 2;
     std::pair<mpz_class, mpz_class> P = std::make_pair(x_1, y_1);
 
-    auto new_points = math::Scalar_mult_points_to_ECC(P, 10, 3571, 7);
+    auto new_points = math::Scalar_mult_points_to_ECC(P, k, modulo, a);
     std::cout << "x = " << new_points.first << "\t y = " << new_points.second << std::endl;
 }

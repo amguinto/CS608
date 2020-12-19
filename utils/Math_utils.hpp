@@ -392,7 +392,7 @@ Find_All_Points_ECC(const mpz_class& modulo,
     std::vector<std::pair<mpz_class, mpz_class>> coordinates;
     // coordinates.reserve(100);
 
-    for (size_t i = 2651; i < 2652; ++i)
+    for (size_t i = 0; i < modulo; ++i)
     {
         // std::cout << "i = " << i << std::endl;
         mpz_class base( (i * i * i) + (a * i) + b); // x^3 + ax + b
@@ -490,11 +490,16 @@ Scalar_mult_points_to_ECC(const std::pair<mpz_class, mpz_class>& Q,
     for (size_t i = 0; i < k-1; ++i)
     {
         new_Q = math::Add_points_to_ECC(P, new_Q, modulo, a);
-        std::cout << "new_Q: " << new_Q.first << "\t" << new_Q.second << std::endl; 
+        // std::cout << "new_Q: " << new_Q.first << "\t" << new_Q.second << std::endl; 
     }
 
     return new_Q;
 }
 
+// static inline mpz_class
+// Order_of_points_ECC(const std::pair<mpz_class, mpz_class>& Q)
+// {
+
+// }
 } // namespace math
 #endif // MATH_UTILS_HPP

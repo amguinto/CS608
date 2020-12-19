@@ -60,12 +60,37 @@ Diffie_Hellman_Key_Exchange(const std::uint64_t a,
     return mpz_get_ui(SK_A.get_mpz_t());
 }
 
-// static inline std::uint64_t 
-// Diffie_Hellman_Key_Exchange_EC(const std::uint64_t a,
-//                                const std::uint64_t b,
-//                                const std::uint64_t p)
-// {
-// }
+static inline std::pair<mpz_class, mpz_class> 
+Diffie_Hellman_Key_Exchange_EC(const mpz_class A_priv_key,
+                               const mpz_class B_priv_key,
+                               const std::pair<mpz_class, mpz_class> generator,
+                               const mpz_class modulo,
+                               const mpz_class a)
+{
+    // X_a = Alice's Private Key
+    // X_b = Bob's Private Key
+    // Calculate Public Keys
+    auto Pub_A = math::Scalar_mult_points_to_ECC(generator, A_priv_key, modulo, a);
+    auto Pub_B = math::Scalar_mult_points_to_ECC(generator, B_priv_key, modulo, a);
+
+    std::cout << "Pub_A = " << Pub_A.first << "\t" << Pub_A.second << std::endl;
+    std::cout << "Pub_B = " << Pub_B.first << "\t" << Pub_B.second << std::endl;
+    // Now we can calculate the shared key
+    auto SK_A = math::Scalar_mult_points_to_ECC(Pub_B, A_priv_key, modulo, a);
+    auto SK_B = math::Scalar_mult_points_to_ECC(Pub_A, B_priv_key, modulo, a);
+
+    std::cout << "SK_A = " << SK_A.first << "\t" << SK_A.second << std::endl;
+    std::cout << "SK_B = " << SK_B.first << "\t" << SK_B.second << std::endl;
+
+    if (SK_A.first != SK_B.first && SK_A.second != SK_B.second)
+    {
+        std::cout << "ERROR!" << std::endl;
+        std::cout << "SK_A = (" << SK_A.first << ", " << SK_A.second 
+                  << ")\tSK_B = (" << SK_B.first << ", " << SK_B.second << ")" << std::endl;
+    }
+
+    return SK_A;
+}
 
 } // namespace crypto
 } // namespace algos
