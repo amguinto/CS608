@@ -60,6 +60,13 @@ Diffie_Hellman_Key_Exchange(const std::uint64_t a,
     return mpz_get_ui(SK_A.get_mpz_t());
 }
 
+// static inline std::uint64_t 
+// Diffie_Hellman_Key_Exchange_EC(const std::uint64_t a,
+//                                const std::uint64_t b,
+//                                const std::uint64_t p)
+// {
+// }
+
 } // namespace crypto
 } // namespace algos
 #endif // DIFFIE_HELLMAN_KE_HPP

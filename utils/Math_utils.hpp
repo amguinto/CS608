@@ -312,6 +312,24 @@ static inline std::vector<mpz_class>
 Square_Roots_Modulo(const mpz_class& modulo,
                     const mpz_class& a)
 {
+    // Check if p mod 4 = 3
+    mpz_class check_case{};
+    mpz_powm_ui(check_case.get_mpz_t(),  // buffer
+                modulo.get_mpz_t(),    // base
+                1,                   // exponent
+                mpz_class(4).get_mpz_t()); // modulo
+    
+    if (check_case != 3)
+    {
+        std::cout << "we DID NOT pass the case where p mod 4 = 3." << std::endl;
+    }
+
+    mpz_class a_mod{};
+    mpz_powm_ui(a_mod.get_mpz_t(),   // buffer
+                a.get_mpz_t(),       // base
+                1,                   // exponent
+                modulo.get_mpz_t()); // modulo
+    
     // x^2 = base % modulo
     // find r = a^( (p + 1) / 4 ) mod p
     mpz_class r{};
@@ -322,6 +340,8 @@ Square_Roots_Modulo(const mpz_class& modulo,
                 base.get_mpz_t(),    // base
                 1,                   // exponent
                 modulo.get_mpz_t()); // modulo
+
+    // std::cout << "r = " << r << std::endl;
 
     // NOTE: -r + modulo = another root
     mpz_class r_2(-r + modulo);
@@ -336,11 +356,11 @@ Square_Roots_Modulo(const mpz_class& modulo,
                 modulo.get_mpz_t()); // modulo
 
     std::vector<mpz_class> roots{};
-    if (r_check == a)
+    if (r_check == a_mod)
     {
-        roots.push_back(r_check);
+        roots.push_back(r);
     }
-
+    // std::cout << "r_check = " << r_check << std::endl; 
     mpz_class r2_check{};
     mpz_class base_r2(r_2 * r_2); // r^2
     mpz_powm_ui(r2_check.get_mpz_t(), // buffer
@@ -348,9 +368,11 @@ Square_Roots_Modulo(const mpz_class& modulo,
                 1,                   // exponent
                 modulo.get_mpz_t()); // modulo
 
-    if (r2_check == a)
+    // std::cout << "r_2 = " << r_2 << std::endl;
+
+    if (r2_check == a_mod)
     {
-        roots.push_back(r2_check);
+        roots.push_back(r_2);
     }
 
     if (roots.empty())
@@ -359,6 +381,92 @@ Square_Roots_Modulo(const mpz_class& modulo,
     }
 
     return roots;
+}
+
+static inline std::vector<std::pair<mpz_class, mpz_class>>
+Find_All_Points_ECC(const mpz_class& modulo,
+                    const mpz_class& a,
+                    const mpz_class& b)
+{
+    // NOTE: x = i in this case since we iterate to modulo-1.
+    std::vector<std::pair<mpz_class, mpz_class>> coordinates;
+    // coordinates.reserve(100);
+
+    for (size_t i = 2651; i < 2652; ++i)
+    {
+        // std::cout << "i = " << i << std::endl;
+        mpz_class base( (i * i * i) + (a * i) + b); // x^3 + ax + b
+        // std::cout << "base = " << base << std::endl;
+        std::vector<mpz_class> roots = math::Square_Roots_Modulo(modulo,
+                                                                 base);
+        for (const auto& val : roots)
+        {
+            // Make sure the root exists.
+            if (val != 0)
+            {
+                coordinates.push_back(std::make_pair(i, val));
+            }
+        }
+    }
+
+    return coordinates;
+}
+
+static inline std::pair<mpz_class, mpz_class>
+Add_points_to_ECC(const std::pair<mpz_class, mpz_class>& P,
+                  const std::pair<mpz_class, mpz_class>& Q,
+                  const mpz_class modulo,
+                  const mpz_class a)
+{
+    mpz_class answer;
+
+    mpz_class x_r;
+    mpz_class y_r;
+    if (P.first == Q.first and P.second == Q.second)
+    {
+        mpz_class foo;
+        mpz_ui_pow_ui(foo.get_mpz_t(), Q.second.get_ui(), 2);
+
+        mpz_class beta = ((3 * (foo) + a) * math::Multiplicative_Inverse(mpz_class(2) * Q.second, modulo));
+        
+        mpz_class beta_powered_2;
+        mpz_ui_pow_ui(beta_powered_2.get_mpz_t(), beta.get_ui(), 2);
+        mpz_class base_x = beta_powered_2 - (2 * P.first);
+        // mpz_class base_x = math::IPow(beta, mpz_class(2)) - (2 * P.first);
+        mpz_powm_ui(x_r.get_mpz_t(), // buffer
+                    base_x.get_mpz_t(),  // base
+                    1,                   // exponent
+                    modulo.get_mpz_t()); // modulo
+
+        mpz_class base_y = beta * (P.first - x_r) - P.second;
+        mpz_powm_ui(y_r.get_mpz_t(), // buffer
+                    base_y.get_mpz_t(),  // base
+                    1,                   // exponent
+                    modulo.get_mpz_t()); // modulo
+    }
+    else
+    {
+        mpz_class alpha = (P.second - Q.second) * math::Multiplicative_Inverse(P.first - Q.first, modulo);
+
+        mpz_class foo;
+        mpz_ui_pow_ui(foo.get_mpz_t(), alpha.get_ui(), 2);
+
+        // mpz_class base_x = math::IPow(alpha, mpz_class(2)) - Q.second - P.first;
+        mpz_class base_x = foo - Q.first - P.first;
+
+        mpz_powm_ui(x_r.get_mpz_t(), // buffer
+                    base_x.get_mpz_t(),  // base
+                    1,                   // exponent
+                    modulo.get_mpz_t()); // modulo
+
+        mpz_class base_y = alpha * (Q.first - x_r) - Q.second;
+        mpz_powm_ui(y_r.get_mpz_t(), // buffer
+                    base_y.get_mpz_t(),  // base
+                    1,                   // exponent
+                    modulo.get_mpz_t()); // modulo
+    }
+
+    return std::make_pair(x_r, y_r);
 }
 
 } // namespace math
