@@ -425,13 +425,18 @@ Add_points_to_ECC(const std::pair<mpz_class, mpz_class>& P,
     if (P.first == Q.first and P.second == Q.second)
     {
         mpz_class foo;
-        mpz_ui_pow_ui(foo.get_mpz_t(), Q.second.get_ui(), 2);
+        mpz_ui_pow_ui(foo.get_mpz_t(), Q.first.get_ui(), 2);
 
-        mpz_class beta = ((3 * (foo) + a) * math::Multiplicative_Inverse(mpz_class(2) * Q.second, modulo));
-        
+        mpz_class mult_inverse_foo;
+
+        mpz_class temp_Q = Q.second * mpz_class(2);
+        mpz_invert(mult_inverse_foo.get_mpz_t(), temp_Q.get_mpz_t(), modulo.get_mpz_t());
+        mpz_class beta = ((3 * (foo) + a) * mult_inverse_foo);
+        // mpz_class beta = ((3 * (foo) + a) * math::Multiplicative_Inverse(mpz_class(2) * Q.second, modulo));
+
         mpz_class beta_powered_2;
         mpz_ui_pow_ui(beta_powered_2.get_mpz_t(), beta.get_ui(), 2);
-        mpz_class base_x = beta_powered_2 - (2 * P.first);
+        mpz_class base_x = beta_powered_2 - 2 * P.first;
         // mpz_class base_x = math::IPow(beta, mpz_class(2)) - (2 * P.first);
         mpz_powm_ui(x_r.get_mpz_t(), // buffer
                     base_x.get_mpz_t(),  // base
@@ -446,7 +451,12 @@ Add_points_to_ECC(const std::pair<mpz_class, mpz_class>& P,
     }
     else
     {
-        mpz_class alpha = (P.second - Q.second) * math::Multiplicative_Inverse(P.first - Q.first, modulo);
+        mpz_class mult_inverse_foo;
+        mpz_class temp_Q = P.first - Q.first;
+        mpz_invert(mult_inverse_foo.get_mpz_t(), temp_Q.get_mpz_t(), modulo.get_mpz_t());
+        
+        // mpz_class alpha = (P.second - Q.second) * math::Multiplicative_Inverse(P.first - Q.first, modulo);
+        mpz_class alpha = (P.second - Q.second) * mult_inverse_foo;
 
         mpz_class foo;
         mpz_ui_pow_ui(foo.get_mpz_t(), alpha.get_ui(), 2);
@@ -467,6 +477,23 @@ Add_points_to_ECC(const std::pair<mpz_class, mpz_class>& P,
     }
 
     return std::make_pair(x_r, y_r);
+}
+
+static inline std::pair<mpz_class, mpz_class>
+Scalar_mult_points_to_ECC(const std::pair<mpz_class, mpz_class>& Q,
+                          const mpz_class k,
+                          const mpz_class modulo,
+                          const mpz_class a)
+{
+    auto new_Q = std::make_pair(Q.first, Q.second);
+    auto P = std::make_pair(Q.first, Q.second);
+    for (size_t i = 0; i < k-1; ++i)
+    {
+        new_Q = math::Add_points_to_ECC(P, new_Q, modulo, a);
+        std::cout << "new_Q: " << new_Q.first << "\t" << new_Q.second << std::endl; 
+    }
+
+    return new_Q;
 }
 
 } // namespace math

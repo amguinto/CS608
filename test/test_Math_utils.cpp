@@ -85,5 +85,15 @@ TEST(test_Math_utils, Add_points_to_ECC)
 
     auto new_points = math::Add_points_to_ECC(Q, P, 3571, 7);
     std::cout << "x = " << new_points.first << "\t y = " << new_points.second << std::endl;
+}
 
+TEST(test_Math_utils, Scalar_mult_points_to_ECC)
+{
+    mpz_class x_1(16);
+    mpz_class y_1(3096);
+
+    std::pair<mpz_class, mpz_class> P = std::make_pair(x_1, y_1);
+
+    auto new_points = math::Scalar_mult_points_to_ECC(P, 10, 3571, 7);
+    std::cout << "x = " << new_points.first << "\t y = " << new_points.second << std::endl;
 }
