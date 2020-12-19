@@ -38,5 +38,12 @@ TEST(test_Math_utils, Multiplicative_Inverse)
 
 TEST(test_Math_utils, Square_Roots_Modulo)
 {
+    std::vector<mpz_class> sq_roots = math::Square_Roots_Modulo(7,  // p (modulo)
+                                                                3); // a
 
+    // This returns 0 if no roots.
+    for (const auto& root : sq_roots)
+    {
+        std::cout << root << std::endl;
+    }
 }

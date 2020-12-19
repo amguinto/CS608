@@ -300,31 +300,66 @@ Square_and_Multiply_Exponentiation(const mpz_class& modulo,
     return A;
 }
 
-//! @description: x^2 = a mod p or r = sqrt(a) mod p exists
+//! @description: Goal: Solve x^2 = a mod p or r = sqrt(a) mod p
+//!                 or how to find r = sqrt(a) mod p
+//!               ---------------------------------------
 //!               if p mod 4 = 3 and a has a square root,
 //!               then r = a^( (p + 1) / 4 ) mod p
-// static inline mpz_class
-// Square_Roots_Modulo(const mpz_class& modulo,
-//                     const mpz_class& base)
-// {
-//     // x^2 = base % modulo
-//     mpz_class x_2{};
-//     mpz_powm_ui(x_2.get_mpz_t(),     // buffer
-//                 base.get_mpz_t(),    // base
-//                 1,                   // exponent
-//                 modulo.get_mpz_t()); // modulo
 
-//     // find r = a^( (p + 1) / 4 ) mod p
-//     mpz_class r{};
-//     mpz_class base2(IPow(base, (modulo + mpz_class(1) / mpz_class(4))));
-//     mpz_powm_ui(r.get_mpz_t(),       // buffer
-//                 base2.get_mpz_t(),   // base
-//                 1,                   // exponent
-//                 modulo.get_mpz_t()); // modulo
+// NOTE: p = modulo
+//       a = the number we're trying to find the sqrt of
+static inline std::vector<mpz_class>
+Square_Roots_Modulo(const mpz_class& modulo,
+                    const mpz_class& a)
+{
+    // x^2 = base % modulo
+    // find r = a^( (p + 1) / 4 ) mod p
+    mpz_class r{};
 
-//     // Test
+    mpz_class base{};
+    mpz_ui_pow_ui(base.get_mpz_t(), a.get_ui(), (modulo.get_ui() + 1 ) / 4);
+    mpz_powm_ui(r.get_mpz_t(),  // buffer
+                base.get_mpz_t(),    // base
+                1,                   // exponent
+                modulo.get_mpz_t()); // modulo
 
-// }
+    // NOTE: -r + modulo = another root
+    mpz_class r_2(-r + modulo);
+
+    // Now we need to verify the 2 roots we found.
+    // Plug it in for x for: x^2 mod p. If it does not equal to a, then the square root does not exit
+    mpz_class r_check{};
+    mpz_class base_r(r * r); // r^2
+    mpz_powm_ui(r_check.get_mpz_t(), // buffer
+                base_r.get_mpz_t(),  // base
+                1,                   // exponent
+                modulo.get_mpz_t()); // modulo
+
+    std::vector<mpz_class> roots{};
+    if (r_check == a)
+    {
+        roots.push_back(r_check);
+    }
+
+    mpz_class r2_check{};
+    mpz_class base_r2(r_2 * r_2); // r^2
+    mpz_powm_ui(r2_check.get_mpz_t(), // buffer
+                base_r2.get_mpz_t(),  // base
+                1,                   // exponent
+                modulo.get_mpz_t()); // modulo
+
+    if (r2_check == a)
+    {
+        roots.push_back(r2_check);
+    }
+
+    if (roots.empty())
+    {
+        roots.push_back(0);
+    }
+
+    return roots;
+}
 
 } // namespace math
 #endif // MATH_UTILS_HPP

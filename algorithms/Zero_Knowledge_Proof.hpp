@@ -14,12 +14,72 @@ namespace crypto
 {
 namespace algos
 {
+
+static inline std::vector<mpz_class>
+Calculate_Public_Keys(const std::vector<mpz_class>& secret_keys,
+                      const mpz_class&              modulo)
+{
+    // The same number of secret keys generates the same number of public keys.
+    std::vector<mpz_class> pub_keys{};
+    pub_keys.reserve(secret_keys.size());
+    for (const auto& key : secret_keys)
+    {
+        mpz_class pub_key{};
+
+        // We need the inverse of the secret key to solve for x.
+        // s_i^2 * P_i = 1 mod N
+        mpz_class base(key * key);
+        mpz_class base_inv = math::Multiplicative_Inverse(base, modulo);
+        mpz_powm_ui(pub_key.get_mpz_t(), // Result buffer
+                    base_inv.get_mpz_t(), // Base (d * e)
+                    1,                   // Exponent
+                    modulo.get_mpz_t());      // Modulo)
+
+        pub_keys.push_back(pub_key);
+    }
+
+    return pub_keys;
+}
+
+
 static inline bool
 // Everyone knows Alice's Public Key
 Zero_Knowledge_Proof(const mpz_class N,
                      const std::vector<mpz_class> PubKey,
                      const std::vector<mpz_class> PrivKey)
 {
+    assert(PubKey.size() == PrivKey.size());
+    // Find Blum's primes: p, q that satisfy:
+    //  N = pq
+    //  p mod 4 = q mod 4 = 3 (Blum's primes)
+
+    // Everyone knows the public ID
+
+    // Satisfy:
+    // PrivKey[i]^2 * PubKey[i] mod N = 1
+    for (size_t i = 0; i < PubKey.size(); ++i)
+    {
+        mpz_class result{};
+        mpz_class base = (PrivKey[i] * PrivKey[i]) * PubKey[i];
+        mpz_powm_ui(result.get_mpz_t(), // Result buffer
+                    base.get_mpz_t(), // Base (d * e)
+                    1,                   // Exponent
+                    N.get_mpz_t());      // Modulo)
+
+        std::cout << "result = " << result << "\tPubKey = " << PubKey[i] << "\tPrivKey = " << PrivKey[i] << std::endl;
+        assert(result == 1);
+    }
+
+    return true;
+}
+
+static inline bool
+// Everyone knows Alice's Public Key
+// Without public keys given, we can calculate them.
+Zero_Knowledge_Proof(const mpz_class N,
+                     const std::vector<mpz_class> PrivKey)
+{
+    std::vector<mpz_class> PubKey = Calculate_Public_Keys(PrivKey, N);
     assert(PubKey.size() == PrivKey.size());
     // Find Blum's primes: p, q that satisfy:
     //  N = pq
@@ -45,6 +105,7 @@ Zero_Knowledge_Proof(const mpz_class N,
     return true;
 }
 
+
 static inline bool
 // Nobody else knows Alice's Private ID
 Zero_Knowledge_Proof(const mpz_class N,
@@ -56,7 +117,7 @@ Zero_Knowledge_Proof(const mpz_class N,
     // Random numbers from Alice needs to have the same number of columns
     assert(random_numbers.size() == mat.size());
 
-    // Private key size needs to have the same number of rows
+    // Private key size needs to have the same number of cols
     assert(PrivKey.size() == mat[0].size());
 
     // Calculate:

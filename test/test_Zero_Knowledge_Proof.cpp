@@ -8,6 +8,23 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+TEST(test_Zero_Knowledge_Proof, Pub_key_Calculation)
+{
+    mpz_class modulo = 77;
+
+    std::vector<mpz_class> secret_keys{};
+    secret_keys.push_back(9);
+    secret_keys.push_back(10);
+
+    std::vector<mpz_class> pub_keys = crypto::algos::Calculate_Public_Keys(secret_keys,
+                                                                           modulo);
+    for (const auto& key : pub_keys)
+    {
+        std::cout << key << std::endl;
+    }
+}
+
+
 TEST(test_Zero_Knowledge_Proof, Everyone_knows_pub_key)
 {
     // Zero_Knowledge_Proof(const mpz_class N,
@@ -17,6 +34,18 @@ TEST(test_Zero_Knowledge_Proof, Everyone_knows_pub_key)
                                             (77, 
                                              std::vector<mpz_class>{mpz_class(58), // PubKey
                                                                     mpz_class(67)},
+                                             std::vector<mpz_class>{mpz_class(9),  // PrivKey
+                                                                    mpz_class(10)});
+    EXPECT_TRUE(satisfied);
+}
+
+TEST(test_Zero_Knowledge_Proof, Everyone_knows_pub_key_NO_PUB_KEY_PARAM)
+{
+    // Zero_Knowledge_Proof(const mpz_class N,
+                    //  const std::pair<mpz_class, mpz_class> PubKey,
+                    //  const std::pair<mpz_class, mpz_class> PrivKey)
+    auto satisfied = crypto::algos::Zero_Knowledge_Proof
+                                            (77,
                                              std::vector<mpz_class>{mpz_class(9),  // PrivKey
                                                                     mpz_class(10)});
     EXPECT_TRUE(satisfied);
